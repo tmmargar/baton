@@ -1,0 +1,217 @@
+<?php
+declare(strict_types=1);
+namespace Baton\T4g\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\CustomIdGenerator;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
+use DateTime;
+#[Table(name: "baton_invoices")]
+#[Entity(repositoryClass: InvoicesRepository::class)]
+class Invoices
+{
+    #[Column(name: "invoice_id", nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: "CUSTOM")]
+    #[CustomIdGenerator(class: InvoicesIdGenerator::class)]
+    private int $invoiceId;
+
+    #[Column(name: "invoice_date", nullable: false)]
+    private DateTime $invoiceDate;
+
+    #[Column(name: "invoice_due_date", nullable: false)]
+    private DateTime $invoiceDueDate;
+
+    #[Column(name: "invoice_amount", precision: 4, scale: 2, nullable: false)]
+    private float $invoiceAmount;
+
+    #[Column(name: "invoice_comment", length: 200, nullable: true)]
+    private ?string $invoiceComment;
+
+    #[ManyToOne(targetEntity: Members::class, inversedBy: "invoices")]
+    #[JoinColumn(name: "member_id", referencedColumnName:"member_id", nullable: false)]
+    private Members $members;
+
+    #[OneToMany(mappedBy: "invoices", targetEntity: InvoiceLines::class)]
+    #[JoinColumn(name: "invoice_id", referencedColumnName: "invoice_id", nullable: false)]
+    private Collection $invoiceLines;
+
+    #[OneToMany(mappedBy: "invoices", targetEntity: InvoicePayments::class)]
+    #[JoinColumn(name: "invoice_id", referencedColumnName: "invoice_id", nullable: false)]
+    private Collection $invoicePayments;
+
+    public function __construct() {
+        $this->invoiceLines = new ArrayCollection();
+        $this->invoicePayments = new ArrayCollection();
+    }
+
+    /**
+     * @return number
+     */
+    public function getInvoiceId(): int {
+        return $this->invoiceId;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getInvoiceDate(): DateTime {
+        return $this->invoiceDate;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getInvoiceDueDate(): DateTime {
+        return $this->invoiceDueDate;
+    }
+    /**
+     * @return float
+     */
+    public function getInvoiceAmount(): float {
+        return $this->invoiceAmount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInvoiceComment(): ?string {
+        return $this->invoiceComment;
+    }
+
+    /**
+     * @return Members
+     */
+    public function getMembers(): Members {
+        return $this->members;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getInvoiceLines(): Collection {
+        return $this->invoiceLines;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getInvoicePayments(): Collection {
+        return $this->invoicePayments;
+    }
+    /**
+     * @param number $invoiceId
+     * @return self
+     */
+    public function setInvoiceId(int $invoiceId): self {
+        $this->invoiceId = $invoiceId;
+        return $this;
+    }
+
+    /**
+     * @param DateTime $invoiceDate
+     * @return self
+     */
+    public function setInvoiceDate(DateTime $invoiceDate): self {
+        $this->invoiceDate = $invoiceDate;
+        return $this;
+    }
+
+    /**
+     * @param DateTime $invoiceDueDate
+     * @return self
+     */
+    public function setInvoiceDueDate(DateTime $invoiceDueDate): self {
+        $this->invoiceDueDate = $invoiceDueDate;
+        return $this;
+    }
+
+    /**
+     * @param float $invoiceAmount
+     * @return self
+     */
+    public function setInvoiceAmount(float $invoiceAmount): self {
+        $this->invoiceAmount = $invoiceAmount;
+        return $this;
+    }
+
+    /**
+     * @param string $invoiceComment
+     * @return self
+     */
+    public function setInvoiceComment(?string $invoiceComment): self {
+        $this->invoiceComment = $invoiceComment;
+        return $this;
+    }
+
+    /**
+     * @param Members $members
+     * @return self
+     */
+    public function setMembers(Members $members): self {
+        $this->members = $members;
+        return $this;
+    }
+
+    /**
+     * @param Collection $invoiceLines
+     * @return self
+     */
+    public function setInvoiceLines(Collection $invoiceLines): self {
+        $this->invoiceLines = $invoiceLines;
+        return $this;
+    }
+
+    /**
+     * @param Collection $invoicePayments
+     * @return self
+     */
+    public function setInvoicePayments(Collection $invoicePayments): self {
+        $this->invoicePayments = $invoicePayments;
+        return $this;
+    }
+    /**
+     * @return string
+     */
+    public function getInvoiceStatus(): string {
+        $status = "";
+        if (count($this->invoicePayments) == 0) {
+            $status = "Owes $" . $this->invoiceAmount;
+        } else {
+            $paidAmount = 0;
+            foreach ($this->invoicePayments as $invoicePayment) {
+                $paidAmount += $invoicePayment->getInvoicePaymentAmount();
+            }
+            $status = "Owes $" . ($this->invoiceAmount - $paidAmount);
+        }
+        return $status;
+    }
+
+    public function getInvoiceBalance(): float {
+        return $this->invoiceAmount - $this->getInvoicePaymentTotal();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPastDueFlag(): bool {
+        return new DateTime() > $this->invoiceDueDate;
+    }
+
+    public function getInvoicePaymentTotal(): float {
+        $total = 0;
+        if (count($this->invoicePayments) > 0) {
+            foreach($this->invoicePayments as $payment) {
+                $total += $payment->getInvoicePaymentAmount();
+            }
+        }
+        return $total;
+    }
+}

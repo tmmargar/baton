@@ -1,0 +1,32 @@
+body {
+  max-width: 1000px;
+}
+.pastDue {
+  color: orange;
+  font-weight: bold;
+}
+input[type=number] {
+  width: 50px;
+}
+div.xxlarge {
+  font-size: xx-large;
+}
+.wrap {
+  border: 5px solid lightcoral;
+  padding: 1rem;
+  height: 50vh;
+  > style {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+.child {
+  left: 40%;
+  /*position: absolute;*/
+  top: 40%;
+}
+.label {
+  font-weight: bold;
+}

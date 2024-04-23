@@ -1,0 +1,11 @@
+body {
+  max-width: 800px;
+}
+@media all and (max-width: 600px) {
+  body {
+    max-width: unset;
+  }
+}
+ul {
+ padding: revert;
+}

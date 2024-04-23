@@ -1,0 +1,40 @@
+<?php
+declare(strict_types = 1);
+namespace Baton\T4g;
+use DateTime;
+use Baton\T4g\Model\Constant;
+use Baton\T4g\Model\FormControl;
+use Baton\T4g\Utility\SessionUtility;
+use tidy;
+require_once "init.php";
+define("NAME_FIELD_VALUE", "value");
+define("NAME_FIELD_GENERATE", "generate");
+define("NAME_FIELD_HASH", "hash");
+$smarty->assign("title", "Create Hash");
+$smarty->assign("heading", "Create Hash");
+$smarty->assign("action", $_SERVER["SCRIPT_NAME"] . "?" . $_SERVER["QUERY_STRING"]);
+$smarty->assign("formName", "frmHash");
+$output = "";
+$mode = isset($_POST[Constant::FIELD_NAME_MODE]) ? $_POST[Constant::FIELD_NAME_MODE] : "";
+$output .= "<div class=\"responsive responsive--2cols responsive--collapse\">";
+$textBoxValue = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: true, checked: NULL, class: NULL, cols: NULL, disabled: false, id: NAME_FIELD_VALUE, maxLength: 30, name: NAME_FIELD_VALUE, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 40, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: NULL, wrap: NULL);
+$output .= " <div class=\"responsive-cell responsive-cell-label\"><label class=\"label\" for=\"" . $textBoxValue->getId() . "\">Value:</label></div>";
+$output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxValue->getHtml() . "</div>";
+if (NAME_FIELD_GENERATE == $mode) {
+    $hash = password_hash($_POST["value"], PASSWORD_DEFAULT);
+    $output .= " <div class=\"responsive-cell responsive-cell-label\"><label for=\"hash\">Hash:</div>\n";
+    $textAreaHash = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: 40, disabled: false, id: NAME_FIELD_HASH, maxLength: NULL, name: NAME_FIELD_HASH, onClick: NULL, placeholder:NULL, readOnly: false, required: false, rows: 3, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: $hash, wrap: "hard");
+    $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textAreaHash->getHtml() . "</div>\n";
+    $output .= "</div>\n";
+}
+$buttonGenerate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: array("button-icon button-icon-separator icon-border-caret-right"), cols: NULL, disabled: false, id: NAME_FIELD_GENERATE, maxLength: NULL, name: NAME_FIELD_GENERATE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: ucwords(NAME_FIELD_GENERATE), wrap: NULL);
+$output .= $buttonGenerate->getHtml();
+$hiddenMode = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::FIELD_NAME_MODE, maxLength: NULL, name: Constant::FIELD_NAME_MODE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_HIDDEN, value: $mode, wrap: NULL);
+$output .= $hiddenMode->getHtml();
+$output .= "</div>";
+$smarty->assign("content", $output);
+$outputTemplate = $smarty->fetch("hash.tpl");
+$outputTidy = new tidy;
+$outputTidy->parseString($outputTemplate, $configTidy, "utf8");
+$outputTidy->cleanRepair();
+echo $outputTidy;
