@@ -72,7 +72,8 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0) {
     $htmlMenuReportAdministration = new HtmlMenu(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), id: NULL, items: NULL, text: "Administration");
     $htmlLinkNewPlayerApproval = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageSignupApproval.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "New member approval", title: NULL);
     $htmlLinkInvoice = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageInvoice.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "Invoices", title: NULL);
-    $htmlLinkAdministrationArray = array($htmlLinkInvoice, $htmlLinkNewPlayerApproval);
+    $htmlLinkEventTypeCost = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageEventTypeCost.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "Event Type Cost", title: NULL);
+    $htmlLinkAdministrationArray = array($htmlLinkInvoice, $htmlLinkEventTypeCost, $htmlLinkNewPlayerApproval);
     $htmlMenuReportAdministration->setItems($htmlLinkAdministrationArray);
     array_push($levels, $htmlMenuReportAdministration);
 }

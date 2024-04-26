@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 
 #[Table(name: "baton_event_type_costs")]
-#[Entity(repositoryClass: EventTypesRepository::class)]
+#[Entity(repositoryClass: EventTypeCostsRepository::class)]
 class EventTypeCosts
 {
     #[Id]
