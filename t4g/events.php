@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace Baton\T4g;
 use Baton\T4g\Model\Constant;
 use DateTime;
+use Baton\T4g\Utility\DateTimeUtility;
 require_once "init.php";
 $smarty->assign("title", "T4G Events");
 $smarty->assign("heading", "");
@@ -21,10 +22,10 @@ foreach ($events as $event) {
             $counterOrganization++;
         }
     }
-//     $event->getEventStartDate()->format("m/d/Y") . " - " . $event->getEventName() . $eventOrganizations
+    //     DateTimeUtility::formatDisplayDate(value: $event->getEventStartDate()) . " - " . $event->getEventName() . $eventOrganizations
     $output .= "<div>";
     $output .= "<strong><u>" . $event->getEventType()->getEventTypeName() . "</u></strong><br>";
-    $output .= $event->getEventLocation() . " - " . $event->getEventStartDate()->format("m/d/Y") . " to " . $event->getEventEndDate()->format("m/d/Y") . "<br>";
+    $output .= $event->getEventLocation() . " - " . DateTimeUtility::formatDisplayDate(value: $event->getEventStartDate()) . " to " . DateTimeUtility::formatDisplayDate(value: $event->getEventEndDate()) . "<br>";
     $output .= "<a href=\"" . $event->getEventUrl() . "\">" . $event->getEventName() . "</a> - " . $event->getEventDescription();
     $output .= "</div>\n";
     $counter++;

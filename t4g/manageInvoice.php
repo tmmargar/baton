@@ -400,8 +400,8 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     foreach($results as $invoice) {
         $output .= "   <td><a href=\"#\" id=\"invoice_history_link_" . $invoice->getInvoiceId() . "\" title=\"View history\">" . $invoice->getInvoiceId() . "</a></td>\n";
         $output .= "   <td>" . $invoice->getMembers()->getMemberName() . "</td>\n";
-        $output .= "   <td>" . $invoice->getInvoiceDate()->format("m/d/Y") . "</td>\n";
-        $output .= "   <td" . ($now->format("m/d/Y") > $invoice->getInvoiceDueDate()->format("m/d/Y") ? " class=\"pastDue\"" : "") . ">" . $invoice->getInvoiceDueDate()->format("m/d/Y") . "</td>\n";
+        $output .= "   <td>" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDate()) . "</td>\n";
+        $output .= "   <td" . (DateTimeUtility::formatDisplayDate(value: $now) > DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) ? " class=\"pastDue\"" : "") . ">" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) . "</td>\n";
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceAmount() . "</td>\n";
         $output .= "   <td class=\"positive\"><a href=\"#\" id=\"invoice_payments_link_" . $invoice->getInvoiceId() . "\">$" . $invoice->getInvoicePaymentTotal() . "</a></td>\n";
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceBalance() . "</td>\n";
@@ -437,13 +437,13 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
             $outputAdditional .= "    <tbody>\n";
             $outputAdditional .= "     <tr>\n";
             $outputAdditional .= "      <td>" . $invoiceHistory->getInvoiceId() . "</td>\n";
-            $outputAdditional .= "      <td>" . $invoiceHistory->getInvoiceDate()->format("m/d/Y") . "</td>\n";
-            $outputAdditional .= "      <td>" . $invoiceHistory->getInvoiceDueDate()->format("m/d/Y") . "</td>\n";
+            $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $invoiceHistory->getInvoiceDate()) . "</td>\n";
+            $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $invoiceHistory->getInvoiceDueDate()) . "</td>\n";
             $outputAdditional .= "      <td class=\"positive\">$" . $invoiceHistory->getInvoiceAmount() . "</td>\n";
             $outputAdditional .= "      <td><pre>" . $invoiceHistory->getInvoiceComment() . "</pre></td>\n";
             $outputAdditional .= "      <td>" . $invoiceHistory->getAction() . "</td>\n";
             $outputAdditional .= "      <td>" . $invoiceHistory->getRevision() . "</td>\n";
-            $outputAdditional .= "      <td>" . $invoiceHistory->getChangeDate()->format("m/d/Y h:i:s A") . "</td>\n";
+            $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDateTime(value: $invoiceHistory->getChangeDate()) . "</td>\n";
             $outputAdditional .= "     </tr>\n";
             $outputAdditional .= "    </tbody>\n";
             $outputAdditional .= "   </table>\n";
@@ -470,7 +470,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
                 $outputAdditional .= "      <td><pre>" . $invoiceHistoryLine->getInvoiceLineComment() . "</pre></td>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryLine->getAction() . "</td>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryLine->getRevision() . "</td>\n";
-                $outputAdditional .= "      <td>" . $invoiceHistoryLine->getChangeDate()->format("m/d/Y h:i:s A") . "</td>\n";
+                $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDateTime(value: $invoiceHistoryLine->getChangeDate()) . "</td>\n";
                 $outputAdditional .= "     </tr>\n";
             }
             $outputAdditional .= "    </tbody>\n";
@@ -493,12 +493,12 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
             foreach($invoiceHistory->getInvoicePayments() as $invoiceHistoryPayment) {
                 $outputAdditional .= "     <tr>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryPayment->getInvoicePaymentId() . "</td>\n";
-                $outputAdditional .= "      <td>" . $invoiceHistoryPayment->getInvoicePaymentDate()->format("m/d/Y") . "</td>\n";
+                $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $invoiceHistoryPayment->getInvoicePaymentDate()) . "</td>\n";
                 $outputAdditional .= "      <td class=\"positive\">$" . $invoiceHistoryPayment->getInvoicePaymentAmount() . "</td>\n";
                 $outputAdditional .= "      <td><pre>" . $invoiceHistoryPayment->getInvoicePaymentComment() . "</pre></td>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryPayment->getAction() . "</td>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryPayment->getRevision() . "</td>\n";
-                $outputAdditional .= "      <td>" . $invoiceHistoryPayment->getChangeDate()->format("m/d/Y h:i:s A") . "</td>\n";
+                $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDateTime(value: $invoiceHistoryPayment->getChangeDate()) . "</td>\n";
                 $outputAdditional .= "     </tr>\n";
             }
             $outputAdditional .= "    </tbody>\n";
@@ -566,7 +566,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         foreach($invoice->getInvoicePayments() as $invoicePayment) {
             $outputAdditional .= "     <tr>\n";
             $outputAdditional .= "      <td>" . $invoicePayment->getInvoicePaymentId() . "</td>\n";
-            $outputAdditional .= "      <td>" . $invoicePayment->getInvoicePaymentDate()->format("m/d/Y") . "</td>\n";
+            $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $invoicePayment->getInvoicePaymentDate()) . "</td>\n";
             $outputAdditional .= "      <td class=\"positive\">$" . $invoicePayment->getInvoicePaymentAmount() . "</td>\n";
             $outputAdditional .= "      <td><pre>" . $invoicePayment->getInvoicePaymentComment() . "</pre></td>\n";
             $outputAdditional .= "     </tr>\n";
@@ -593,7 +593,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $outputAdditional .= "     </tr>\n";
         $outputAdditional .= "     <tr>\n";
         $outputAdditional .= "      <td class=\"label\">" . INVOICE_DUE_DATE_FIELD_LABEL . "</td>\n";
-        $outputAdditional .= "      <td>" . $now->format("m/d/Y") . "</td>\n";
+        $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $now) . "</td>\n";
         $outputAdditional .= "     </tr>\n";
         $outputAdditional .= "     <tr>\n";
         $outputAdditional .= "      <td class=\"label\">" . INVOICE_PAYMENT_AMOUNT_FIELD_LABEL . "</td>\n";

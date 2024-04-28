@@ -101,7 +101,7 @@ class MembersRepository extends BaseRepository {
             $returnValue = $recordCount;
         } else {
             if (1 == $recordCount) {
-                $returnValue = array($selector, bin2hex($token), $expires->format('U'));
+                $returnValue = array($selector, bin2hex($token), DateTimeUtility::formatSecondsSinceEpoch(value: $expires));
             } else {
                 $returnValue = "More than 1 record found!";
             }

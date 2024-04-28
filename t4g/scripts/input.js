@@ -81,7 +81,9 @@ export const input = {
   },
   formatDate : function({value, field, operation, amount} = {}) {
     let dt = new Date(value);
-    if (field == "minutes") {
+    if (field == "days") {
+      dt.setDate(operation == "+" ? dt.getDate() + amount : dt.getDate() - amount);
+    } else if (field == "minutes") {
       dt.setMinutes(operation == "+" ? dt.getMinutes() + amount : dt.getMinutes() - amount);
     }
     return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0") + "T" + String(dt.getHours()).padStart(2, "0") + ":" + String(dt.getMinutes()).padStart(2, "0");
@@ -110,6 +112,14 @@ export const input = {
   invalid : function({selector} = {}) {
     document.querySelector(selector).classList.add("errors");
   },
+  isUrlValid : function(string) {
+     try {
+       new URL(string);
+       return true;
+     } catch (err) {
+       return false;
+     }
+},
   maskDate : function() {
     return "__/__/____";
   },

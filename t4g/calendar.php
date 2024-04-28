@@ -4,6 +4,7 @@ namespace Baton\T4g;
 use Baton\T4g\Common\Calendar;
 use Baton\T4g\Model\Constant;
 use DateTime;
+use Baton\T4g\Utility\DateTimeUtility;
 // date_default_timezone_set("America/Detroit");
 require_once "init.php";
 // include "src/Common/Calendar.php";
@@ -13,7 +14,7 @@ require_once "init.php";
 // $calendar->add_event("Holiday", "2023-05-16", 7);
 $entityManager = getEntityManager();
 $now = new DateTime();
-$calendar = new Calendar($now->format("Y-m-d"));
+$calendar = new Calendar(DateTimeUtility::formatDatabaseDate(value: $now));
 $resultListEventsByDate = $entityManager->getRepository(Constant::ENTITY_EVENTS)->getAllByDate();
 $counter = 0;
 foreach ($resultListEventsByDate as $event) {
@@ -26,10 +27,10 @@ foreach ($resultListEventsByDate as $event) {
         foreach($event->getEventOrganizations() as $eventOrganization) {
             $resultListOrganizations = $entityManager->getRepository(Constant::ENTITY_ORGANIZATIONS)->getById(organizationId: $eventOrganization->getOrganizations()->getOrganizationId());
             $organizationName = $resultListOrganizations->getOrganizationName();
-            $calendar->add_event($organizationName . "-".$event->getEventName() . "@" . $event->getEventStartDate()->format("h:iA") . "-" . $event->getEventEndDate()->format("h:iA"), $event->getEventStartDate()->format("Y-m-d"), ((int) date_diff($event->getEventStartDate(), $event->getEventEndDate())->format("%R%a")) + 1, strtolower($organizationName));
+            $calendar->add_event($organizationName . "-".$event->getEventName() . "@" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventStartDate()) . "-" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventEndDate()), DateTimeUtility::formatDatabaseDate(value: $event->getEventStartDate()), DateTimeUtility::formatDateIntervalSignDays(value: ((int) date_diff($event->getEventStartDate(), $event->getEventEndDate()))) + 1, strtolower($organizationName));
         }
     } else {
-        $calendar->add_event($event->getEventName() . "@" . $event->getEventStartDate()->format("h:iA") . "-" . $event->getEventEndDate()->format("h:iA"), $event->getEventStartDate()->format("Y-m-d"), ((int) date_diff($event->getEventStartDate(), $event->getEventEndDate())->format("%R%a")) + 1, strtolower($event->getEventType()->getEventTypeName()));
+        $calendar->add_event($event->getEventName() . "@" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventStartDate()) . "-" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventEndDate()), DateTimeUtility::formatDatabaseDate(value: $event->getEventStartDate()), DateTimeUtility::formatDateIntervalSignDays(value: ((int) date_diff($event->getEventStartDate(), $event->getEventEndDate()))) + 1, strtolower($event->getEventType()->getEventTypeName()));
     }
     $counter++;
 }

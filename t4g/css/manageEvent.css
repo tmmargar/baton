@@ -1,0 +1,14 @@
+body {
+  max-width: 1600px;
+}
+input[type=number] {
+  width: 50px;
+}
+.child {
+  left: 40%;
+  /*position: absolute;*/
+  top: 40%;
+}
+ul {
+ padding: revert;
+}

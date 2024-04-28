@@ -24,6 +24,7 @@ abstract class Constant {
   public const ACCESSKEY_DELETE = "l";
   public const ACCESSKEY_DESCRIPTION = "i";
   public const ACCESSKEY_DUE_DATE = "u";
+  public const ACCESSKEY_END_DATE = "e";
   public const ACCESSKEY_EMAIL = "e";
   public const ACCESSKEY_EVENT_TYPE = "e";
   public const ACCESSKEY_FEE_PAID = "f";
@@ -65,6 +66,7 @@ abstract class Constant {
   public const ACCESSKEY_SEASON = "s";
   public const ACCESSKEY_SIGN_UP = "s";
   public const ACCESSKEY_SPECIAL_TYPE = "s";
+  public const ACCESSKEY_START_DATE = "s";
   public const ACCESSKEY_START_TIME = "s";
   public const ACCESSKEY_STATE = "t";
   public const ACCESSKEY_STUDENT = "s";

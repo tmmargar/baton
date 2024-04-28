@@ -1,11 +1,6 @@
 "use strict";
 import { dataTable, display, input } from "./import.js";
 export const inputLocal = {
-  enableButtons : function(objId) {
-    document.querySelectorAll("[id^='removeRow']").forEach(obj => {
-        obj.disabled = document.querySelectorAll("#" + objId + " tbody tr").length == 2 ? true : false;
-    });
-  },
   initializeDataTable : function() {
       const aryRowGroup = {
             startRender: null,
@@ -72,7 +67,6 @@ let documentReadyCallback = () => {
   inputLocal.initializeDataTable();
   inputLocal.setMinMax();
   inputLocal.validate();
-  inputLocal.enableButtons("inputs");
   input.storePreviousValue({selectors: ["[id^='eventType_']", "[id^='eventTypeTimeLength_']", "[id^='eventTypeStudentCount_']", "[id^='eventTypeCost_']"]});
 };
 if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {

@@ -44,7 +44,7 @@ class Events
     private string $eventLocation;
 
     #[Column(name: "event_url", length: 200, nullable: true)]
-    private string $eventUrl;
+    private ?string $eventUrl;
 
     #[OneToMany(mappedBy: "events", targetEntity: EventOrganizations::class)]
     #[JoinColumn(name: "event_id", referencedColumnName: "event_id")]
@@ -105,7 +105,7 @@ class Events
     /**
      * @return string
      */
-    public function getEventUrl(): string {
+    public function getEventUrl(): ?string {
         return $this->eventUrl;
     }
 
@@ -175,7 +175,7 @@ class Events
      * @param string $eventUrl
      * @return self
      */
-    public function setEventUrl(string $eventUrl): self {
+    public function setEventUrl(?string $eventUrl): self {
         $this->eventUrl = $eventUrl;
         return $this;
     }

@@ -37,7 +37,7 @@ $htmlLinkEvents = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtili
 //             $counterOrganization++;
 //         }
 //     }
-//     $htmlLinkEvent = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "events.php", id: NULL, paramName: array("eventId"), paramValue: array($event->getEventId()), tabIndex: - 1, text: $event->getEventStartDate()->format("m/d/Y") . " - " . $event->getEventName() . $eventOrganizations,  title: NULL);
+//     $htmlLinkEvent = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "events.php", id: NULL, paramName: array("eventId"), paramValue: array($event->getEventId()), tabIndex: - 1, text: DateTimeUtility::formatDisplayDate(value: $event->getEventStartDate()) . " - " . $event->getEventName() . $eventOrganizations,  title: NULL);
 //     $htmlLinkEventArray[$counter] = $htmlLinkEvent;
 //     $htmlMenuEventByDate->setItems($htmlLinkEventArray);
 //     $counter++;
@@ -50,7 +50,7 @@ $htmlLinkEvents = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtili
 //     if (0 < $organization->getEventOrganizations()->count()) {
 //         $counterOrganizationEvent = 0;
 //         foreach($organization->getEventOrganizations() as $eventOrganization) {
-//             $htmlLinkEventByOrg = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "events.php", id: NULL, paramName: array("eventId"), paramValue: array($eventOrganization->getEvents()->getEventId()), tabIndex: - 1, text: $eventOrganization->getEvents()->getEventStartDate()->format("m/d/Y") . " - " . $eventOrganization->getEvents()->getEventName(),  title: NULL);
+//             $htmlLinkEventByOrg = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "events.php", id: NULL, paramName: array("eventId"), paramValue: array($eventOrganization->getEvents()->getEventId()), tabIndex: - 1, text: DateTimeUtility::formatDisplayDate(value: $eventOrganization->getEvents()->getEventStartDate()) . " - " . $eventOrganization->getEvents()->getEventName(),  title: NULL);
 //             $htmlLinkEventByOrgArray[$counterOrganizationEvent] = $htmlLinkEventByOrg;
 //             $counterOrganizationEvent++;
 //         }
@@ -72,8 +72,9 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0) {
     $htmlMenuReportAdministration = new HtmlMenu(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), id: NULL, items: NULL, text: "Administration");
     $htmlLinkNewPlayerApproval = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageSignupApproval.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "New member approval", title: NULL);
     $htmlLinkInvoice = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageInvoice.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "Invoices", title: NULL);
-    $htmlLinkEventTypeCost = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageEventTypeCost.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "Event Type Cost", title: NULL);
-    $htmlLinkAdministrationArray = array($htmlLinkInvoice, $htmlLinkEventTypeCost, $htmlLinkNewPlayerApproval);
+    $htmlLinkEvent = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageEvent.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "Events", title: NULL);
+    $htmlLinkEventTypeCost = new HtmlLink(accessKey: NULL, class: NULL, debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), href: "manageEventTypeCost.php", id: NULL, paramName: NULL, paramValue: NULL, tabIndex: - 1, text: "Event Type Costs", title: NULL);
+    $htmlLinkAdministrationArray = array($htmlLinkInvoice, $htmlLinkEvent, $htmlLinkEventTypeCost, $htmlLinkNewPlayerApproval);
     $htmlMenuReportAdministration->setItems($htmlLinkAdministrationArray);
     array_push($levels, $htmlMenuReportAdministration);
 }
