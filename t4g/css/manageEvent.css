@@ -9,6 +9,6 @@ input[type=number] {
   /*position: absolute;*/
   top: 40%;
 }
-ul {
+div > div > ul {
  padding: revert;
 }

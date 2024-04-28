@@ -83,6 +83,9 @@ nav .m-menu ul {
   height: 100%;
   overflow-y: auto;
 }
+nav .m-menu ul li {
+  list-style-type: none;
+}
 nav .m-menu ul li label, nav .m-menu ul li span {
   padding: 0 15px;
 }

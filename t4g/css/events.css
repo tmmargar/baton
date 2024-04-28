@@ -6,6 +6,6 @@ body {
     max-width: unset;
   }
 }
-ul {
+div > div > ul {
  padding: revert;
 }
