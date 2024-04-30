@@ -30,6 +30,7 @@ abstract class Constant {
   public const ACCESSKEY_FEE_PAID = "f";
   public const ACCESSKEY_FIRST_NAME = "f";
   public const ACCESSKEY_FOOD = "f";
+  public const ACCESSKEY_FREQUENCY = "f";
   public const ACCESSKEY_GAME_TYPE = "g";
   public const ACCESSKEY_GROUP = "o";
   public const ACCESSKEY_GO = "g";
@@ -60,6 +61,7 @@ abstract class Constant {
   public const ACCESSKEY_REGISTER = "r";
   public const ACCESSKEY_REJECT = "r";
   public const ACCESSKEY_REMEMBER_ME = "r";
+  public const ACCESSKEY_REPEATS = "r";
   public const ACCESSKEY_RESET = "r";
   public const ACCESSKEY_REMOVE_ROW = "m";
   public const ACCESSKEY_SAVE = "s";

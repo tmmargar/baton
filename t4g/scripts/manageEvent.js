@@ -39,16 +39,23 @@ export const inputLocal = {
   setMinMax : function() {
     if (document.querySelector("[id^='eventStartDate_']")) {
       if (document.querySelector("[id^='eventEndDate_']:valid")) {
-        document.querySelector("[id^='eventStartDate_']").max = input.formatDate({value: document.querySelector("[id^='eventEndDate_']").value, field: "days", operation: "-", amount: 1});
+        document.querySelector("[id^='eventStartDate_']").max = input.formatDate({value: document.querySelector("[id^='eventEndDate_']").value, field: "minutes", operation: "-", amount: 1});
       } else {
         document.querySelector("[id^='eventStartDate_']").removeAttribute("max");
       }
     }
     if (document.querySelector("[id^='eventEndDate_']")) {
       if (document.querySelector("[id^='eventStartDate_']:valid")) {
-        document.querySelector("[id^='eventEndDate_']").min = input.formatDate({value: document.querySelector("[id^='eventStartDate_']").value, field: "days", operation: "+", amount: 1});
+        document.querySelector("[id^='eventEndDate_']").min = input.formatDate({value: document.querySelector("[id^='eventStartDate_']").value, field: "minutes", operation: "+", amount: 1});
       } else {
         document.querySelector("[id^='eventEndDate_']").removeAttribute("min");
+      }
+    }
+    if (document.querySelector("[id^='eventRepeatsEndDate_']")) {
+      if (document.querySelector("[id^='eventStartDate_']:valid")) {
+        document.querySelector("[id^='eventRepeatsEndDate_']").min = input.formatDate({value: document.querySelector("[id^='eventStartDate_']").value, field: "minutes", operation: "+", amount: 1});
+      } else {
+        document.querySelector("[id^='eventRepeatsEndDate_']").removeAttribute("min");
       }
     }
   },
@@ -60,10 +67,11 @@ export const inputLocal = {
     const description = document.querySelectorAll("[id^='eventDescription_']");
     const location = document.querySelectorAll("[id^='eventLocation_']");
     const url = document.querySelectorAll("[id^='eventUrl_']");
+    const repeatsEndDate = document.querySelectorAll("[id^='eventRepeatsEndDate_']");
     if (eventType.length > 0) {
       eventType[0].setCustomValidity(eventType[0].value == "" ? "You must select a event type" : "");
       startDate[0].setCustomValidity(startDate[0].validity.valueMissing ? "You must enter a start date" : startDate[0].validity.rangeUnderflow || startDate[0].validity.rangeOverflow ? "You must enter a start date >= " + startDate[0].min + " and <= " + startDate[0].max: "");
-      endDate[0].setCustomValidity(endDate[0].validity.valueMissing ? "You must enter a valid end date" : endDate[0].validity.rangeUnderflow || endDate[0].validity.rangeOverflow ? "You must enter a end date >= " + endDate[0].min + " and <= " + endDate[0].max : "");
+      endDate[0].setCustomValidity(endDate[0].validity.valueMissing ? "You must enter a valid end date" : endDate[0].validity.rangeUnderflow || endDate[0].validity.rangeOverflow ? "You must enter an end date >= " + endDate[0].min + " and <= " + endDate[0].max : "");
       name[0].setCustomValidity(name[0].validity.valueMissing ? "You must enter a valid name" : "");
       description[0].setCustomValidity(description[0].validity.valueMissing ? "You must enter a valid description" : "");
       location[0].setCustomValidity(location[0].validity.valueMissing ? "You must enter a valid location" : "");
@@ -71,6 +79,9 @@ export const inputLocal = {
           url[0].setCustomValidity("You must enter a valid url");
       } else {
           url[0].setCustomValidity("");
+      }
+      if (repeatsEndDate.length > 0 && !repeatsEndDate.disabled) {
+        repeatsEndDate[0].setCustomValidity(repeatsEndDate[0].validity.valueMissing ? "You must enter a valid end date" : repeatsEndDate[0].validity.rangeUnderflow || repeatsEndDate[0].validity.rangeOverflow ? "You must enter an end date >= " + repeatsEndDate[0].min : "");
       }
     }
   }
@@ -99,6 +110,18 @@ document.querySelectorAll("#dataTbl tbody tr")?.forEach(row => row.addEventListe
         }
     }
 }));
+document.addEventListener("change", (event) => {
+  if (event.target && event.target.id.includes("eventRepeats")) {
+    document.querySelectorAll("[id^='eventFrequency']")?.forEach(input => {
+      const idValues = input.id.split("_");
+      input.disabled = document.querySelector("[id^='eventRepeats_" + idValues[1] + "']").value == "repeats" ? false : true;
+    });
+    document.querySelectorAll("[id^='eventRepeatsEndDate']")?.forEach(input => {
+      const idValues = input.id.split("_");
+      input.disabled = document.querySelector("[id^='eventRepeats_" + idValues[1] + "']").value == "repeats" ? false : true;
+    });
+  }
+});
 document.addEventListener("click", (event) => {
   inputLocal.validate();
   if (event.target && event.target.id.includes("reset")) {

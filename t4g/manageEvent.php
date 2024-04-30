@@ -29,6 +29,15 @@ define("EVENT_LOCATION_FIELD_NAME", "eventLocation");
 define("EVENT_URL_FIELD_LABEL", "Url");
 define("EVENT_URL_FIELD_NAME", "eventUrl");
 define("EVENT_ID_FIELD_LABEL", "Id");
+define("EVENT_REPEATS_FIELD_LABEL", "Repeats");
+define("EVENT_REPEATS_FIELD_NAME", "eventRepeats");
+define("EVENT_FREQUENCY_FIELD_LABEL", "Frequency");
+define("EVENT_FREQUENCY_FIELD_NAME", "eventFrequency");
+define("EVENT_REPEATS_END_DATE_FIELD_LABEL", "End on");
+define("EVENT_REPEATS_END_DATE_FIELD_NAME", "eventRepeatsEndDate");
+define("EVENT_REPEATS_VALUE", "repeats");
+define("EVENT_DAILY_VALUE", "daily");
+define("EVENT_WEEKLY_VALUE", "weekly");
 $smarty->assign("title", "Manage Event");
 $smarty->assign("heading", "Manage Event");
 $smarty->assign("style", "<link href=\"css/manageEvent.css\" rel=\"stylesheet\">");
@@ -48,7 +57,6 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
     $output .= "<div class=\"responsive responsive--2cols responsive--collapse\">";
     if (Constant::MODE_CREATE == $mode || (Constant::MODE_MODIFY == $mode && DEFAULT_VALUE_BLANK != $ids)) {
         $ctr = 0;
-        echo "<br>".$ids;
         $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
         foreach ($ary as $id) {
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\">" . EVENT_ID_FIELD_LABEL . ": </div>";
@@ -87,6 +95,27 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_URL_FIELD_NAME . "_" . $id . "\">" . EVENT_URL_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
             $textBoxUrl = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: EVENT_URL_FIELD_NAME . "_" . $id, maxLength: 200, name: EVENT_URL_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: false, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: (0 < count($events)) ? $events[0]->getEventUrl() : "", wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxUrl->getHtml() . "</div>";
+            $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_REPEATS_FIELD_NAME . "_" . $id . "\">" . EVENT_REPEATS_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>\n";
+            $selectRepeats = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_REPEATS, class: NULL, disabled: false, id: EVENT_REPEATS_FIELD_NAME . "_" . $id, multiple: false, name: EVENT_REPEATS_FIELD_NAME . "_" . $id, onClick: NULL, readOnly: false, size: 1, suffix: NULL, value: NULL);
+            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $selectRepeats->getHtml();
+            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: "", suffix: NULL, text: "Does not repeat", value: "");
+            $output .= $option->getHtml();
+            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: "", suffix: NULL, text: "Repeats", value: EVENT_REPEATS_VALUE);
+            $output .= $option->getHtml();
+            $output .= "     </select>\n";
+            $output .= "    </div>\n";
+            $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_FREQUENCY_FIELD_NAME . "_" . $id . "\">" . EVENT_FREQUENCY_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>\n";
+            $selectRepeats = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_FREQUENCY, class: NULL, disabled: true, id: EVENT_FREQUENCY_FIELD_NAME . "_" . $id, multiple: false, name: EVENT_FREQUENCY_FIELD_NAME . "_" . $id, onClick: NULL, readOnly: false, size: 1, suffix: NULL, value: NULL);
+            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $selectRepeats->getHtml();
+            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: EVENT_DAILY_VALUE, suffix: NULL, text: "Daily", value: EVENT_DAILY_VALUE);
+            $output .= $option->getHtml();
+            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: "", suffix: NULL, text: "Weekly", value: EVENT_WEEKLY_VALUE);
+            $output .= $option->getHtml();
+            $output .= "     </select>\n";
+            $output .= "    </div>\n";
+            $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_REPEATS_END_DATE_FIELD_NAME . "_" . $id . "\">" . EVENT_REPEATS_END_DATE_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
+            $textBoxRepeatsEndDate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_END_DATE, autoComplete: NULL, autoFocus: true, checked: NULL, class: array("timePicker"), cols: NULL, disabled: true, id: EVENT_REPEATS_END_DATE_FIELD_NAME . "_" . $id, maxLength: 30, name: EVENT_REPEATS_END_DATE_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_DATE_TIME, value: NULL, wrap: NULL);
+            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxRepeatsEndDate->getHtml() . "</div>";
             $ctr++;
         }
         $output .= "<div class=\"buttons center\">\n";
@@ -116,23 +145,46 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
         if ("" == $eventUrl) {
             $eventUrl = NULL;
         }
+        $eventRepeats = (isset($_POST[EVENT_REPEATS_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_REPEATS_FIELD_NAME . "_" . $id] :  "";
+        $eventFrequency = (isset($_POST[EVENT_FREQUENCY_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_FREQUENCY_FIELD_NAME . "_" . $id] :  "";
+        $eventRepeatsEndDateString = (isset($_POST[EVENT_REPEATS_END_DATE_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_REPEATS_END_DATE_FIELD_NAME . "_" . $id] :  "";
         if (Constant::MODE_SAVE_CREATE == $mode) {
-            $ev = new Events();
-            $ev->setEventDescription($eventDescription);
+            if (EVENT_REPEATS_VALUE == $eventRepeats) {
+                $diff = DateTimeUtility::formatDateIntervalDays(value: date_diff(baseObject: new DateTime(datetime: $eventStartDateString), targetObject: new DateTime(datetime: $eventRepeatsEndDateString)));
+                if (EVENT_DAILY_VALUE == $eventFrequency) {
+                    $increment = "D";
+                } else if (EVENT_WEEKLY_VALUE == $eventFrequency) {
+                    $increment = "W";
+                    $diff = round($diff / 7); // diff returns # of days
+                }
+            } else {
+                $diff = 1;
+            }
             $eventEndDate = new DateTime(datetime: $eventEndDateString);
-            $ev->setEventEndDate($eventEndDate);
-            $ev->setEventLocation($eventLocation);
-            $ev->setEventName($eventName);
             $eventStartDate = new DateTime(datetime: $eventStartDateString);
-            $ev->setEventStartDate($eventStartDate);
-            $etFind = $entityManager->find(Constant::ENTITY_EVENT_TYPES, $eventTypeId);
-            $ev->setEventType($etFind);
-            $ev->setEventUrl($eventUrl);
-            $entityManager->persist($ev);
-            try {
-                $entityManager->flush();
-            } catch (Exception $e) {
-                $errors = $e->getMessage();
+            $index = 0;
+            while ($index < $diff) {
+                if ($index > 0) {
+                    $interval = new \DateInterval("P1" . $increment);
+                    $eventEndDate->add(interval: $interval);
+                    $eventStartDate->add(interval: $interval);
+                }
+                $ev = new Events();
+                $ev->setEventDescription($eventDescription);
+                $ev->setEventEndDate($eventEndDate);
+                $ev->setEventLocation($eventLocation);
+                $ev->setEventName($eventName);
+                $ev->setEventStartDate($eventStartDate);
+                $etFind = $entityManager->find(Constant::ENTITY_EVENT_TYPES, $eventTypeId);
+                $ev->setEventType($etFind);
+                $ev->setEventUrl($eventUrl);
+                $entityManager->persist($ev);
+                try {
+                    $entityManager->flush();
+                } catch (Exception $e) {
+                    $errors = $e->getMessage();
+                }
+                $index++;
             }
         } elseif (Constant::MODE_SAVE_MODIFY == $mode) {
             $ev = $entityManager->find(Constant::ENTITY_EVENTS, $ids);
@@ -209,7 +261,6 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     $results = $entityManager->getRepository(Constant::ENTITY_EVENTS)->getById(eventId: $id);
     $output .= "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"display\" id=\"" . Constant::ID_TABLE_DATA . "\" style=\"width: 100%;\">\n";
     $output .= " <thead>\n";
-    // event type, start date, end date, name, description, location, url
     $output .= "  <th>#</th>\n";
     $output .= "  <th>Type</th>\n";
     $output .= "  <th>Start Date</th>\n";
@@ -222,6 +273,8 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     $output .= " <tbody>\n";
     $index = 0;
     foreach($results as $event) {
+        // doctrine ORM stores 1 instance of entity so need to refresh after adding lines
+        $entityManager->refresh($event);
         $output .= "  <tr>\n";
         $output .= "   <td>" . $event->getEventId() . "</td>\n";
         $output .= "   <td>" . $event->getEventType()->getEventTypeName() . "</td>\n";
