@@ -8,8 +8,8 @@ export const display = {
     document.querySelector("#info").style.display = "none";
   },
   formatActive : function({value, meta, tableId} = {}) {
-    if (value != "1") { document.querySelector("#" + tableId + " tbody tr:nth-of-type(" + (meta.row + 1) + ")").classList.add("inactive"); }
-    return value == "1" ? "Yes" : "No";
+    if (new Date(value) < new Date()) { document.querySelector("#" + tableId + " tbody tr:nth-of-type(" + (meta.row + 1) + ")").classList.add("inactive"); }
+    return value;
   },
   formatHighlight : function({value, meta, tableId} = {}) {
     if (value == "1") { document.querySelector("#" + tableId + " tbody tr:nth-of-type(" + (meta.row + 1) + ") td:nth-of-type(" + (meta.col + 1) + ")").classList.add("highlight"); }

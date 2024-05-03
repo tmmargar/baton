@@ -13,12 +13,14 @@ class OrganizationsRepository extends BaseRepository {
     }
 
     public function getById(?int $organizationId) {
-        return $this->createQueryBuilder("o")
-                    ->addSelect("eo")
-                    ->innerJoin("o.eventsOrganizations", "eo")
-                    ->where("o.organizationId = :organizationId")
-                    ->setParameters(new ArrayCollection(array(new Parameter("organizationId", $organizationId))))
-                    ->getQuery()->getSingleResult();
+        $qb = $this->createQueryBuilder("o")
+                   ->addSelect("eo")
+                   ->innerJoin("o.eventsOrganizations", "eo");
+       if (isset($organizationId)) {
+            $qb = $qb->where("o.organizationId = :organizationId");
+            $qb->setParameters(new ArrayCollection(array(new Parameter("organizationId", $organizationId))));
+        }
+        return $qb->getQuery()->getResult();
     }
 
 }

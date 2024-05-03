@@ -6,6 +6,7 @@ use Baton\T4g\Model\Email;
 use Baton\T4g\Model\FormControl;
 use Baton\T4g\Model\FormOption;
 use Baton\T4g\Model\FormSelect;
+use Baton\T4g\Utility\HtmlUtility;
 use Baton\T4g\Utility\SessionUtility;
 require_once "init.php";
 define("TO_FIELD_NAME", "to");
@@ -56,7 +57,7 @@ $output .= " </div>\n";
 $output .= "<div class=\"responsive responsive--2cols responsive--collapse\">";
 $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . TO_FIELD_NAME . "\">To:</div>\n";
 $output .= " <div class=\"responsive-cell responsive-cell-value\" style=\"overflow: unset;\">";
-$output .= "  <a href=\"#\" id=\"selectAll\">Select all</a>&nbsp;<a id=\"deselectAll\">De-select all</a>\n";
+$output .= HtmlUtility::buildLink(href: "#", id: "selectAll", target: NULL, title: "Select all", text: "Select all") . "&nbsp;" . HtmlUtility::buildLink(href: "#", id: "deselectAll", target: NULL, title: "De-select all", text: "De-select all");
 $selectTo = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_TO, class: array("tom-select"), disabled: false, id: TO_FIELD_NAME, multiple: true, name: TO_FIELD_NAME . "[]", onClick: NULL, readOnly: false, size: 5, suffix: NULL, value: NULL);
 $output .= $selectTo->getHtml();
 foreach ($resultList as $player) {

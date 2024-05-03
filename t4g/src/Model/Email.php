@@ -1,6 +1,7 @@
 <?php
 declare(strict_types = 1);
 namespace Baton\T4g\Model;
+use Baton\T4g\Utility\HtmlUtility;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 class Email extends Base {
@@ -194,8 +195,7 @@ class Email extends Base {
             $subject = "sign up request needs approval";
             $this->setSubject(subject: $subject);
             $body = $this->getBody() . "<br />" . $this->toName[$idx] . ",<br />";
-            $body .= "&nbsp;&nbsp;" . $this->fromName[$idx] . " sign up request requires your approval. Please <a href=\"" . (Constant::PATH()) .
-            "manageSignupApproval.php\">click here</a> to go to the approval screen.";
+            $body .= "&nbsp;&nbsp;" . $this->fromName[$idx] . " sign up request requires your approval. Please " . HtmlUtility::buildLink(href: Constant::PATH() . "manageSignupApproval.php", target: NULL, title: "click here", text: "click here") . " to go to the approval screen.";
             $this->setBody(body: $body);
             $result .= $this->sendEmail();
         }
@@ -208,7 +208,7 @@ class Email extends Base {
             $subject = "sign up request approved";
             $this->setSubject(subject: $subject);
             $body = $this->getBody() . "<br />" . $this->toName[$idx] . ",<br />";
-            $body .= "&nbsp;&nbsp;Your request has been approved. Please <a href=\"" . (Constant::PATH()) . "\">click here</a> to login.";
+            $body .= "&nbsp;&nbsp;Your request has been approved. Please " . HtmlUtility::buildLink(href: Constant::PATH(), target: NULL, title: "click here", text: "click here") . " to login.";
             $this->setBody(body: $body);
             $result .= $this->sendEmail();
         }
@@ -236,7 +236,7 @@ class Email extends Base {
             $this->setSubject(subject: $subject);
             $body = $this->getBody() . "<br />" . $this->toName[$idx] . ",<br />";
             $url = Constant::PATH() . "resetPassword.php?mode=resetPassword&username=" . $info[0] . "&email=" . $info[1] . "&selector=" . $selectorAndToken[0] . "&validator=" . $selectorAndToken[1];
-            $body .= "&nbsp;&nbsp;Your request has been received. Please <a href=\"" . $url . "\">click here</a> to reset your password.";
+            $body .= "&nbsp;&nbsp;Your request has been received. Please " . HtmlUtility::buildLink(href: $url, target: NULL, title: "click here", text: "click here") . " to reset your password.";
             $this->setBody(body: $body);
             $result .= $this->sendEmail();
         }
@@ -250,7 +250,7 @@ class Email extends Base {
             $this->setSubject(subject: $subject);
             $body = $this->getBody() . "<br />" . $this->toName[$idx] . ",<br />";
             $url = Constant::PATH() . "login.php";
-            $body .= "&nbsp;&nbsp;Your password was changed successfully. Please <a href=\"" . $url . "\">click here</a> to login.";
+            $body .= "&nbsp;&nbsp;Your password was changed successfully. Please " . HtmlUtility::buildLink(href: $url, target: NULL, title: "click here", text: "click here") . " to login.";
             $this->setBody(body: $body);
             $result .= $this->sendEmail();
         }

@@ -22,7 +22,7 @@ export const inputLocal = {
             },
             dataSrc: 5
           };
-    dataTable.initialize({tableId: "dataTbl", aryColumns: [{ "width": "9%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }], aryOrder: [[2, "desc"], [3, "desc"], [4, "asc"]], aryRowGroup: false, autoWidth: false, paging: false, scrollCollapse: true, scrollResize: true, scrollY: "400px", searching: true });
+    dataTable.initialize({tableId: "dataTbl", aryColumns: [{ "width": "9%" }, { "width": "13%" }, { "render" : function (data, type, row, meta) { return display.formatActive({value: data, meta: meta, tableId: "dataTbl"}); }, "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }], aryOrder: [[2, "desc"], [3, "desc"], [4, "asc"]], aryRowGroup: false, autoWidth: false, paging: false, scrollCollapse: true, scrollResize: true, scrollY: "400px", searching: true });
   },
   setId : function({selectedRow} = {}) {
     return selectedRow.children[0].innerHTML;
@@ -66,6 +66,7 @@ export const inputLocal = {
     const name = document.querySelectorAll("[id^='eventName_']");
     const description = document.querySelectorAll("[id^='eventDescription_']");
     const location = document.querySelectorAll("[id^='eventLocation_']");
+    const locationUrl = document.querySelectorAll("[id^='eventLocationUrl_']");
     const url = document.querySelectorAll("[id^='eventUrl_']");
     const repeatsEndDate = document.querySelectorAll("[id^='eventRepeatsEndDate_']");
     if (eventType.length > 0) {
@@ -75,6 +76,11 @@ export const inputLocal = {
       name[0].setCustomValidity(name[0].validity.valueMissing ? "You must enter a valid name" : "");
       description[0].setCustomValidity(description[0].validity.valueMissing ? "You must enter a valid description" : "");
       location[0].setCustomValidity(location[0].validity.valueMissing ? "You must enter a valid location" : "");
+      if (locationUrl[0].value.length > 0 && !input.isUrlValid(locationUrl[0].value)) {
+          locationUrl[0].setCustomValidity("You must enter a valid url");
+      } else {
+          locationUrl[0].setCustomValidity("");
+      }
       if (url[0].value.length > 0 && !input.isUrlValid(url[0].value)) {
           url[0].setCustomValidity("You must enter a valid url");
       } else {
@@ -99,10 +105,10 @@ if (document.readyState === "complete" || (document.readyState !== "loading" && 
 }
 document.querySelectorAll("#dataTbl tbody tr")?.forEach(row => row.addEventListener("click", (event) => {
     if (event.target.localName != "a") {
-        const selected = row.classList.contains("selected") || row.classList.contains("dtrg-group");
+        const selected = row.classList.contains("selected") || row.classList.contains("dtrg-group") || row.classList.contains("inactive");
         document.querySelectorAll("[id^='modify']")?.forEach(btn => { btn.disabled = selected; });
         document.querySelectorAll("[id^='delete']")?.forEach(btn => { btn.disabled = selected; });
-        // if 1 row is already selected or clicking on group row or clicking on link
+        // if 1 row is already selected or clicking on group row or clicking on row in past or clicking on link
         if (selected || document.querySelectorAll("#dataTbl tbody tr.selected").length == 1 || event.target.localName == "a") {
             row.classList.remove("selected");
         } else {

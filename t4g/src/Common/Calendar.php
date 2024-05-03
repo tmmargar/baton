@@ -1,5 +1,10 @@
 <?php
 namespace Baton\T4g\Common;
+
+use Baton\T4g\Utility\DateTimeUtility;
+use DateTime;
+use Baton\T4g\Utility\HtmlUtility;
+
 class Calendar {
 
     private $active_year, $active_month, $active_day;
@@ -23,8 +28,20 @@ class Calendar {
         $first_day_of_week = array_search(date('D', strtotime($this->active_year . '-' . $this->active_month . '-1')), $days);
         $html = '<div class="calendar">';
         $html .= '<div class="header">';
+        $html .= '<div class="month-year-prev">';
+        $prev = new DateTime($this->active_year . '-' . $this->active_month . '-' . $this->active_day);
+        $prev->sub(new \DateInterval("P1M"));
+        $prevMonthYear = DateTimeUtility::formatCalendarMonthYear(value: $prev);
+        $html .= HtmlUtility::buildLink(href: $_SERVER["SCRIPT_NAME"] . "?date=" . DateTimeUtility::formatDatabaseDate(value: $prev), id: NULL, target: NULL, title: $prevMonthYear, text: $prevMonthYear);
+        $html .= '</div>';
         $html .= '<div class="month-year">';
         $html .= date('F Y', strtotime($this->active_year . '-' . $this->active_month . '-' . $this->active_day));
+        $html .= '</div>';
+        $html .= '<div class="month-year-next">';
+        $next = new DateTime($this->active_year . '-' . $this->active_month . '-' . $this->active_day);
+        $next->add(new \DateInterval("P1M"));
+        $nextMonthYear = DateTimeUtility::formatCalendarMonthYear(value: $next);
+        $html .= HtmlUtility::buildLink(href: $_SERVER["SCRIPT_NAME"] . "?date=" . DateTimeUtility::formatDatabaseDate(value: $next), id: NULL, target: NULL, title: $nextMonthYear, text: $nextMonthYear);
         $html .= '</div>';
         $html .= '</div>';
         $html .= '<div class="days">';
@@ -52,7 +69,7 @@ class Calendar {
             foreach ($this->events as $event) {
                 for ($d = 0; $d <= ($event[2]-1); $d++) {
                     if (date('y-m-d', strtotime($this->active_year . '-' . $this->active_month . '-' . $i . ' -' . $d . ' day')) == date('y-m-d', strtotime($event[1]))) {
-                        $html .= '<div class="event' . $event[3] . '" title="Tooltip text">';
+                        $html .= '<div class="event' . $event[3] . '" title="' . $event[0] . '">';
                         $html .= $event[0];
                         $html .= '</div>';
                     }

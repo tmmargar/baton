@@ -12,6 +12,7 @@ use Baton\T4g\Model\FormControl;
 use Baton\T4g\Model\FormOption;
 use Baton\T4g\Model\FormSelect;
 use Baton\T4g\Utility\DateTimeUtility;
+use Baton\T4g\Utility\HtmlUtility;
 use Baton\T4g\Utility\SessionUtility;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -398,14 +399,14 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     $output .= " <tbody>\n";
     $output .= "  <tr>\n";
     foreach($results as $invoice) {
-        $output .= "   <td><a href=\"#\" id=\"invoice_history_link_" . $invoice->getInvoiceId() . "\" title=\"View history\">" . $invoice->getInvoiceId() . "</a></td>\n";
+        $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_history_link_" . $invoice->getInvoiceId(), target: NULL, title: "View history", text: (string) $invoice->getInvoiceId());
         $output .= "   <td>" . $invoice->getMembers()->getMemberName() . "</td>\n";
         $output .= "   <td>" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDate()) . "</td>\n";
         $output .= "   <td" . (DateTimeUtility::formatDisplayDate(value: $now) > DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) ? " class=\"pastDue\"" : "") . ">" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) . "</td>\n";
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceAmount() . "</td>\n";
-        $output .= "   <td class=\"positive\"><a href=\"#\" id=\"invoice_payments_link_" . $invoice->getInvoiceId() . "\">$" . $invoice->getInvoicePaymentTotal() . "</a></td>\n";
+        $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_payments_link_" . $invoice->getInvoiceId(), target: "_self", title: "View payment history", text: (string) $invoice->getInvoicePaymentTotal());
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceBalance() . "</td>\n";
-        $output .= "   <td><a href=\"#\" id=\"invoice_lines_link_" . $invoice->getInvoiceId() . "\">" . count($invoice->getInvoiceLines()) . "</a></td>\n";
+        $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_lines_link_" . $invoice->getInvoiceId(), target: "_self", title: "View lines history", text: (string) count($invoice->getInvoiceLines()));
         $output .= "   <td><pre>" . $invoice->getInvoiceComment() . "</pre></td>\n";
         $output .= "  </tr>\n";
         $invoicesHistory = $entityManager->getRepository(Constant::ENTITY_INVOICES_HISTORY)->getById(invoiceId: $invoice->getInvoiceId());

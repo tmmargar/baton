@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Baton\T4g;
 use Baton\T4g\Model\Constant;
+use Baton\T4g\Utility\HtmlUtility;
 use DateTime;
 require_once "init.php";
 $smarty->assign("title", "T4G Organizations");
@@ -13,7 +14,7 @@ $now = new DateTime();
 $organizations = $entityManager->getRepository(Constant::ENTITY_ORGANIZATIONS)->getAll();
 foreach ($organizations as $organization) {
     $output .= "<div>";
-    $output .= "<a href=\"" . $organization->getOrganizationUrl() . "\">" . $organization->getOrganizationName() . "</a> - " . $organization->getOrganizationDescription();
+    $output .= HtmlUtility::buildLink(href: "" . $organization->getOrganizationUrl() . "", id: NULL, target: "_blank", title: $organization->getOrganizationName(), text: $organization->getOrganizationName()) . " - " . $organization->getOrganizationDescription();
     $output .= "</div>\n";
 }
 if (!$organizations) {

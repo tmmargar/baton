@@ -8,6 +8,7 @@ use Baton\T4g\Model\FormControl;
 use Baton\T4g\Model\FormOption;
 use Baton\T4g\Model\FormSelect;
 use Baton\T4g\Utility\DateTimeUtility;
+use Baton\T4g\Utility\HtmlUtility;
 use Baton\T4g\Utility\SessionUtility;
 use DateInterval;
 use DateTime;
@@ -26,6 +27,8 @@ define("EVENT_DESCRIPTION_FIELD_LABEL", "Description");
 define("EVENT_DESCRIPTION_FIELD_NAME", "eventDescription");
 define("EVENT_LOCATION_FIELD_LABEL", "Location");
 define("EVENT_LOCATION_FIELD_NAME", "eventLocation");
+define("EVENT_LOCATION_URL_FIELD_LABEL", "URL");
+define("EVENT_LOCATION_URL_FIELD_NAME", "eventLocationUrl");
 define("EVENT_URL_FIELD_LABEL", "Url");
 define("EVENT_URL_FIELD_NAME", "eventUrl");
 define("EVENT_ID_FIELD_LABEL", "Id");
@@ -87,14 +90,23 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
             $textBoxName = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: EVENT_NAME_FIELD_NAME . "_" . $id, maxLength: 30, name: EVENT_NAME_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 30, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: (0 < count($events)) ? $events[0]->getEventName() : "", wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxName->getHtml() . "</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_DESCRIPTION_FIELD_NAME . "_" . $id . "\">" . EVENT_DESCRIPTION_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
-            $textBoxDescription = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: 60, disabled: false, id: EVENT_DESCRIPTION_FIELD_NAME . "_" . $id, maxLength: 400, name: EVENT_DESCRIPTION_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: 10, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: (0 < count($events)) ? $events[0]->getEventDescription() : "", wrap: NULL);
+            $textBoxDescription = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: 60, disabled: false, id: EVENT_DESCRIPTION_FIELD_NAME . "_" . $id, maxLength: 400, name: EVENT_DESCRIPTION_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: 5, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: (0 < count($events)) ? $events[0]->getEventDescription() : "", wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxDescription->getHtml() . "</div>";
+            if (Constant::MODE_MODIFY == $mode) {
+                $returnValues = HtmlUtility::parseLink(value: (0 < count($events)) ? $events[0]->getEventLocation() : "");
+                $eventLocation = $returnValues[0];
+                $eventLocationUrl = 1 < count($returnValues) ? $returnValues[1] : "";
+            } else {
+                $eventLocation = "";
+                $eventLocationUrl = "";
+            }
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_LOCATION_FIELD_NAME . "_" . $id . "\">" . EVENT_LOCATION_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
-            $textBoxLocation = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: EVENT_LOCATION_FIELD_NAME . "_" . $id, maxLength: 400, name: EVENT_LOCATION_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: (0 < count($events)) ? $events[0]->getEventLocation() : "", wrap: NULL);
-            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxLocation->getHtml() . "</div>";
+            $textBoxLocation = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: EVENT_LOCATION_FIELD_NAME . "_" . $id, maxLength: 400, name: EVENT_LOCATION_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: $eventLocation, wrap: NULL);
+            $textBoxLocationUrl = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: 60, disabled: false, id: EVENT_LOCATION_URL_FIELD_NAME . "_" . $id, maxLength: 400, name: EVENT_LOCATION_URL_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: false, rows: 5, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: $eventLocationUrl, wrap: NULL);
+            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxLocation->getHtml() . " (name)<br>" . $textBoxLocationUrl->getHtml() . " (url including http/https)</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_URL_FIELD_NAME . "_" . $id . "\">" . EVENT_URL_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
-            $textBoxUrl = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: EVENT_URL_FIELD_NAME . "_" . $id, maxLength: 200, name: EVENT_URL_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: false, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: (0 < count($events)) ? $events[0]->getEventUrl() : "", wrap: NULL);
-            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxUrl->getHtml() . "</div>";
+            $textBoxUrl = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: 60, disabled: false, id: EVENT_URL_FIELD_NAME . "_" . $id, maxLength: 400, name: EVENT_URL_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: false, rows: 5, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: (0 < count($events)) ? $events[0]->getEventUrl() : "", wrap: NULL);
+            $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxUrl->getHtml() . " (url including http/https)</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . EVENT_REPEATS_FIELD_NAME . "_" . $id . "\">" . EVENT_REPEATS_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>\n";
             $selectRepeats = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_REPEATS, class: NULL, disabled: false, id: EVENT_REPEATS_FIELD_NAME . "_" . $id, multiple: false, name: EVENT_REPEATS_FIELD_NAME . "_" . $id, onClick: NULL, readOnly: false, size: 1, suffix: NULL, value: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $selectRepeats->getHtml();
@@ -141,6 +153,12 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
         $eventName = (isset($_POST[EVENT_NAME_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_NAME_FIELD_NAME . "_" . $id] :  "";
         $eventDescription = (isset($_POST[EVENT_DESCRIPTION_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_DESCRIPTION_FIELD_NAME . "_" . $id] :  "";
         $eventLocation = (isset($_POST[EVENT_LOCATION_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_LOCATION_FIELD_NAME . "_" . $id] :  "";
+        $eventLocationUrl = (isset($_POST[EVENT_LOCATION_URL_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_LOCATION_URL_FIELD_NAME . "_" . $id] :  NULL;
+        if ($eventLocationUrl == "") {
+            $eventLocationTemp = $eventLocation;
+        } else {
+            $eventLocationTemp = HtmlUtility::buildLink(href: $eventLocationUrl, target: NULL, title: $eventLocation, text: $eventLocation);
+        }
         $eventUrl = (isset($_POST[EVENT_URL_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_URL_FIELD_NAME . "_" . $id] :  "";
         if ("" == $eventUrl) {
             $eventUrl = NULL;
@@ -172,7 +190,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
                 $ev = new Events();
                 $ev->setEventDescription($eventDescription);
                 $ev->setEventEndDate($eventEndDate);
-                $ev->setEventLocation($eventLocation);
+                $ev->setEventLocation($eventLocationTemp);
                 $ev->setEventName($eventName);
                 $ev->setEventStartDate($eventStartDate);
                 $etFind = $entityManager->find(Constant::ENTITY_EVENT_TYPES, $eventTypeId);
@@ -282,7 +300,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $output .= "   <td>" . DateTimeUtility::formatDisplayDateTime(value: $event->getEventEndDate()) . "</td>\n";
         $output .= "   <td>" . $event->getEventName() . "</td>\n";
         if (30 < strlen($event->getEventDescription())) {
-            $output .= "   <td><a href=\"#\" id=\"event_description_link_" . $index . "\" title=\"View description\">View</a></td>\n";
+            $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "event_description_link_" . $index, target: NULL, title: "View description", text: "View");
             $outputAdditional .= "<script type=\"module\">\n";
             $outputAdditional .= "  document.querySelector(\"#event_description_link_" . $index . "\").addEventListener(\"click\", (evt) => document.querySelector(\"#dialogEventDescription_" . $index . "\").showModal());\n";
             $outputAdditional .= "</script>\n";

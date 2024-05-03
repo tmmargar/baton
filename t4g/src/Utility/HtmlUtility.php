@@ -28,6 +28,41 @@ abstract class HtmlUtility {
     }
     return $class;
   }
+
+  public static function buildLink(string $href, ?string $id, ?string $target, string $title, string $text): string {
+      $link = "<a href=\"" . $href . (isset($id) ? "\" id=\"" . $id : "") . (isset($target) ? "\" target=\"" . $target . "\"" : "") . "\" title=\"" . $title . "\">" . $text . "</a>\n";
+      return $link;
+  }
+
+  /**
+   * @param string $value
+   * @return array
+   */
+  public static function parseLink(string $value): array {
+      //<a href="http://www.google.com/" target="">text</a>
+      $values = explode(separator: " ", string: $value);
+      //[0] is <a
+      //[1] is href="http://www.google.com/"
+      //[2] is target="_blank">text</a>
+      $vals = explode(separator: "=", string: $values[1]);
+      if (1 < count($vals)) {
+          //[0] is href
+          //[1] is "http://www.google.com/"
+          $url = substr(string: $vals[1], offset: 1, length: strlen($vals[1]) - 2);
+          $vals2 = explode(separator: ">", string: $values[2]);
+          //[0] is target="_blank"
+          //[1] is text</a>
+          $values2 = explode(separator: "<", string: $vals2[1]);
+          //[0] is text
+          //[1] is /a>
+          $name = $values2[0];
+          $returnValue = array($name, $url);
+      } else {
+          $returnValue = array($value);
+      }
+      return $returnValue;
+  }
+
   // $format is array of formats (index, type and places)
   // $value is value to format
   // returns formatted value
@@ -66,38 +101,4 @@ abstract class HtmlUtility {
     }
     return $temp;
   }
-
-//   public static function getLink(bool $debug, string|int $id, string $text, string $class): string {
-// //       href: "reports.php", id: NULL, paramName: array("reportId","tournamentId"), paramValue: array("results",$tournaments->getId()), tabIndex: - 1, text: $description . " (" . $tournaments->getDate()->getDisplayFormat() . ")", title: NULL);
-//       switch ($class) {
-//           case Location::class:
-//               $url = "manageLocation.php";
-//               $paramNames = array("playerId", "mode");
-//               $paramValues = array($id . "modify");
-//           case Player::class:
-//               $url = "managePlayer.php";
-//               $paramNames = array("id", "mode");
-//               $paramValues = array($id . "modify");
-//               break;
-//           case "Reports":
-//               $url = "reports.php";
-//               $paramNames = array("reportId", "tournamentId");
-//               $paramValues = array("results", $id);
-//               break;
-//           case Result::class:
-//               $url =  "manageResult.php";
-//               $paramNames = array("id", "mode");
-//               $paramValues = array($id . "modify");
-//           case Tournament::class:
-//               $url = "manageTournament.php";
-//               $paramNames = array("id", "mode");
-//               $paramValues = array($id . "modify");
-//       }
-//       $link = new HtmlLink(accessKey: NULL, class: NULL, debug: $debug, href: $url, id: NULL, paramName: $paramNames, paramValue: $paramValues, tabIndex: -1, text: $text, title: NULL);
-//       return $link->getHtml();
-//   }
-
-//   public static function buildMapLink(string $map): string {
-//       return "<a href =\"" . Constant::PATH_MAP() . "/" . $map . "\">View</a>\n";
-//   }
 }

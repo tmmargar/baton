@@ -1,12 +1,51 @@
+* {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "segoe ui", roboto, oxygen, ubuntu, cantarell, "fira sans", "droid sans", "helvetica neue", Arial, sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+body {
+    background-color: #FFFFFF;
+    margin: 0;
+}
+.content {
+    width: 1400px;
+    margin: 0 auto;
+}
 .calendar {
     display: flex;
     flex-flow: column;
+    float: left;
+}
+/*.calendar .header {
+  margin: 0 auto;
+}*/
+.calendar .header .month-year-prev {
+    font-size: 20px;
+    font-weight: bold;
+    color: #636e73;
+    padding: 2px 0;
+ display: inline-block;
+  width: 33%;
 }
 .calendar .header .month-year {
     font-size: 20px;
     font-weight: bold;
     color: #636e73;
-    padding: 20px 0;
+    padding: 2px 0;
+  display: inline-block;
+  text-align: center;
+  width: 33%;
+}
+.calendar .header .month-year-next {
+     font-size: 20px;
+    font-weight: bold;
+    color: #636e73;
+    padding: 2px 0;
+  display: inline-block;
+  text-align: right;
+  width: 33%;
 }
 .calendar .days {
     display: flex;
@@ -15,7 +54,7 @@
 .calendar .days .day_name {
     width: calc(100% / 7);
     border-right: 1px solid #2c7aca;
-    padding: 20px;
+    padding: 2px;
     text-transform: uppercase;
     font-size: 12px;
     font-weight: bold;
@@ -32,11 +71,11 @@
     width: calc(100% / 7);
     border-right: 1px solid #e6e9ea;
     border-bottom: 1px solid #e6e9ea;
-    padding: 15px;
+    padding: 2px;
     font-weight: bold;
     color: #7c878d;
     cursor: pointer;
-    min-height: 100px;
+    /*min-height: 100px;*/
 }
 .calendar .days .day_num span {
     display: inline-flex;
@@ -46,7 +85,7 @@
 .calendar .days .day_num .event {
     margin-top: 10px;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 12px;
     padding: 3px 6px;
     border-radius: 4px;
     background-color: #f7c30d;
@@ -71,6 +110,7 @@
 .calendar .days .day_num .event.drills, .my-legend ul.legend-labels li span.drills {
     background-color: turquoise;
 }
+.calendar .days .day_num .event.level, .my-legend ul.legend-labels li span.level,
 .calendar .days .day_num .event.level2, .my-legend ul.legend-labels li span.level2 {
     background-color: gray;
 }
@@ -102,8 +142,9 @@
     margin: 0;
     margin-bottom: 5px;
     padding: 0;
-    /*float: left;*/
+    float: left;
     list-style: none;
+    width: 20%;
 }
 .my-legend .legend-scale ul li {
     font-size: 80%;

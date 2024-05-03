@@ -3,62 +3,77 @@ declare(strict_types = 1);
 namespace Baton\T4g;
 use Baton\T4g\Common\Calendar;
 use Baton\T4g\Model\Constant;
-use DateTime;
 use Baton\T4g\Utility\DateTimeUtility;
-// date_default_timezone_set("America/Detroit");
+use Baton\T4g\Utility\HtmlUtility;
+use Baton\T4g\Utility\SessionUtility;
+use DateInterval;
+use DateTime;
+use Exception;
 require_once "init.php";
-// include "src/Common/Calendar.php";
-// $calendar = new Calendar("2023-05-12");
-// $calendar->add_event("Birthday Long Text Test", "2023-05-03", 1, "green");
-// $calendar->add_event("Doctors", "2023-05-04", 1, "red");
-// $calendar->add_event("Holiday", "2023-05-16", 7);
-$entityManager = getEntityManager();
+$smarty->assign("title", "Calendar");
+$smarty->assign("heading", "Calendar");
+$smarty->assign("style", "<link href=\"css/calendar.css\" rel=\"stylesheet\">");
+$smarty->assign("script", "");
+$errors = NULL;
+$output = "";
+$outputAdditional = "";
 $now = new DateTime();
-$calendar = new Calendar(DateTimeUtility::formatDatabaseDate(value: $now));
+$entityManager = getEntityManager();
+$date = (isset($_GET["date"]) ? new DateTime($_GET["date"]) : $now);
+$calendar = new Calendar(DateTimeUtility::formatDatabaseDate(value: $date));
 $resultListEventsByDate = $entityManager->getRepository(Constant::ENTITY_EVENTS)->getAllByDate();
 $counter = 0;
 foreach ($resultListEventsByDate as $event) {
     $eventOrganizations = "";
     if (0 < $event->getEventOrganizations()->count()) {
-//         $counterOrganization = 0;
-//         foreach($event->getEventOrganizations() as $eventOrganization) {
-//             $counterOrganization++;
-//         }
         foreach($event->getEventOrganizations() as $eventOrganization) {
             $resultListOrganizations = $entityManager->getRepository(Constant::ENTITY_ORGANIZATIONS)->getById(organizationId: $eventOrganization->getOrganizations()->getOrganizationId());
-            $organizationName = $resultListOrganizations->getOrganizationName();
-            $calendar->add_event($organizationName . "-".$event->getEventName() . "@" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventStartDate()) . "-" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventEndDate()), DateTimeUtility::formatDatabaseDate(value: $event->getEventStartDate()), DateTimeUtility::formatDateIntervalSignDays(value: ((int) date_diff($event->getEventStartDate(), $event->getEventEndDate()))) + 1, strtolower($organizationName));
+            $organizationName = $resultListOrganizations[0]->getOrganizationName();
+            $calendar->add_event($organizationName . "-".$event->getEventName() . "@" . DateTimeUtility::formatDisplayShortDateTime(value: $event->getEventStartDate()) . "-" . DateTimeUtility::formatDisplayShortDateTime(value: $event->getEventEndDate()), DateTimeUtility::formatDatabaseDate(value: $event->getEventStartDate()), DateTimeUtility::formatDateIntervalSignDays(value: date_diff($event->getEventStartDate(), $event->getEventEndDate())) + 1, strtolower($organizationName));
         }
     } else {
-        $calendar->add_event($event->getEventName() . "@" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventStartDate()) . "-" . DateTimeUtility::formatDisplayShortTime(value: $event->getEventEndDate()), DateTimeUtility::formatDatabaseDate(value: $event->getEventStartDate()), DateTimeUtility::formatDateIntervalSignDays(value: ((int) date_diff($event->getEventStartDate(), $event->getEventEndDate()))) + 1, strtolower($event->getEventType()->getEventTypeName()));
+        $calendar->add_event($event->getEventName() . "@" . DateTimeUtility::formatDisplayShortDateTime(value: $event->getEventStartDate()) . "-" . DateTimeUtility::formatDisplayShortDateTime(value: $event->getEventEndDate()), DateTimeUtility::formatDatabaseDate(value: $event->getEventStartDate()), DateTimeUtility::formatDateIntervalSignDays(value: date_diff($event->getEventStartDate(), $event->getEventEndDate())) + 1, strtolower($event->getEventType()->getEventTypeName()));
     }
     $counter++;
 }
-
-?>
-<!DOCTYPE html>
-<html>
- <head>
-  <meta charset="utf-8">
-  <title>Event Calendar</title>
-  <link href="css/style.css" rel="stylesheet" type="text/css">
-  <link href="css/calendar.css" rel="stylesheet" type="text/css">
- </head>
- <body>
-  <div class="content home">
-   <div class="my-legend">
-    <div class="legend-title">Organization</div>
-    <div class="legend-scale">
-     <ul class="legend-labels">
-      <li><span class="usta"></span>USTA</li>
-      <li><span class="wta"></span>WTA</li>
-      <li><span class="tu"></span>TU</li>
-      <li><span class="fusion"></span>Fusion</li>
-      <li><span class="nbta"></span>NBTA</li>
-     </ul>
-    </div>
-   </div>
-   <?=$calendar?>
-  </div>
- </body>
-</html>
+$output .= "<div class=\"content home\">\n";
+$output .= " <div class=\"my-legend\">\n";
+$output .= "  <div class=\"legend-title\">Legend</div>\n";
+$output .= "  <div class=\"legend-scale\">\n";
+$organizations = $entityManager->getRepository(Constant::ENTITY_ORGANIZATIONS)->getById(organizationId: NULL);
+$counter = 1;
+foreach ($organizations as $organization) {
+ if ($counter == 1 || $counter % 4 == 0) {
+   $output .= "   <ul class=\"legend-labels\">\n";
+}
+$output .= "<li><span class=\"" . strtolower($organization->getOrganizationName()) . "\"></span>" . $organization->getOrganizationName() . "</li>\n";
+if ($counter % 3 == 0) {
+   $output .= "   </ul>\n";
+}
+$counter++;
+}
+if ($counter % 4 != 0) {
+ $output .= "   </ul>\n";
+}
+$eventTypes = $entityManager->getRepository(Constant::ENTITY_EVENT_TYPES)->getById(eventTypeId: NULL);
+$counter = 1;
+foreach ($eventTypes as $eventType) {
+ if ($counter == 1 || $counter % 4 == 0) {
+     $output .= "   <ul class=\"legend-labels\">\n";
+ }
+ $output .= "    <li><span class=\"" . strtolower($eventType->getEventTypeName()) . "\"></span>" . $eventType->getEventTypeName() . "</li>\n";
+ if ($counter % 3 == 0) {
+     $output .= "   </ul>\n";
+ }
+ $counter++;
+}
+if ($counter % 4 != 0) {
+ $output .= "   </ul>\n";
+}
+$output .= "  </div>\n";
+$output .= " </div>\n";
+$output .= $calendar;
+$output .= "</div>\n";
+$smarty->assign("content", $output);
+$smarty->assign("contentAdditional", $outputAdditional);
+$smarty->display("calendar.tpl");
