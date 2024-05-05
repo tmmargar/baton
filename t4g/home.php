@@ -20,7 +20,7 @@ foreach($eventTypes as $eventType) {
             $outputHome .= "<h4 class=\"center\">" . $eventTypeCost->getEventTypeTimeLength() . " minutes</h3>\n";
         }
         $outputHome .=
-          "<div class=\"center\" style=\"width: 10%;\">\n" .
+          "<div class=\"center\" style=\"width: 30%;\">\n" .
           " <ul class=\"two-columns\">\n";
         if (0 < $eventTypeCost->getEventTypeStudentCount()) {
             $outputHome .= "  <li>" . $eventTypeCost->getEventTypeStudentCount() . " student(s)</li>";

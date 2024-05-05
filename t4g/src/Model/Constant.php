@@ -168,7 +168,7 @@ abstract class Constant {
   public const URL = "twirling4grace.com";
   public const VALUE_DEFAULT_CHECKBOX = "on";
   public const DATABASE_HOST_NAME = "localhost";
-  public const DATABASE_NAME  = "baton";
+  public const DATABASE_NAME  = "chipch5_baton";
   public const DATABASE_PASSWORD_LOCAL = "toor";
   public const DATABASE_PASSWORD_SERVER = "App_baton";
   public const DATABASE_PORT = 3306;
