@@ -31,10 +31,10 @@ class Teams
 
     #[OneToMany(mappedBy: "teams", targetEntity: TeamStudents::class)]
     #[JoinColumn(name: "team_id", referencedColumnName: "team_id")]
-    private Collection $teamsStudents;
+    private Collection $teamStudents;
 
     public function __construct() {
-        $this->teamsStudents = new ArrayCollection();
+        $this->teamStudents = new ArrayCollection();
     }
     /**
      * @return number
@@ -85,15 +85,15 @@ class Teams
      * @return Collection
      */
     public function getTeamStudents(): Collection {
-        return $this->teamsStudents;
+        return $this->teamStudents;
     }
 
     /**
-     * @param Collection $teamsStudents
+     * @param Collection $teamStudents
      * @return self
      */
-    public function setTeamStudents(Collection $teamsStudents): self {
-        $this->teamsStudents = $teamsStudents;
+    public function setTeamStudents(Collection $teamStudents): self {
+        $this->teamStudents = $teamStudents;
         return $this;
     }
 }

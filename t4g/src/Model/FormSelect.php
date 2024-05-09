@@ -14,6 +14,9 @@ class FormSelect extends FormBase {
           (NULL !== $this->isReadOnly() && $this->isReadOnly() ? " readonly" : "") . " size=\"" . $this->getSize() . "\"" . ("" != $this->getOnClick() ? " onclick=\"" . $this->getOnClick() . "\"" : "") .
           ">\n";
     }
+    public function getName(): string {
+        return $this->name . ($this->multiple ? "[]" : "");
+    }
     public function getOnClick(): ?string {
         return $this->onClick;
     }

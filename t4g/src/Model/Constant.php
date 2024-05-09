@@ -6,6 +6,7 @@ abstract class Constant {
   public const ACCESSKEY_ADDON_AMOUNT = "n";
   public const ACCESSKEY_ADDON_CHIP_COUNT = "t";
   public const ACCESSKEY_ADDRESS = "a";
+  public const ACCESSKEY_ADD = "a";
   public const ACCESSKEY_ADD_ROW = "o";
   public const ACCESSKEY_AMOUNT = "a";
   public const ACCESSKEY_APPROVE = "a";
@@ -63,6 +64,7 @@ abstract class Constant {
   public const ACCESSKEY_REMEMBER_ME = "r";
   public const ACCESSKEY_REPEATS = "r";
   public const ACCESSKEY_RESET = "r";
+  public const ACCESSKEY_REMOVE = "r";
   public const ACCESSKEY_REMOVE_ROW = "m";
   public const ACCESSKEY_SAVE = "s";
   public const ACCESSKEY_SEASON = "s";
@@ -137,6 +139,7 @@ abstract class Constant {
   public const PATH_HOME_SERVER = "/home/chipch5/baton/";
   public const SYMBOL_CURRENCY_DEFAULT = "$";
   public const SYMBOL_PERCENTAGE_DEFAULT = "%";
+  public const TEXT_ADD = "Add";
   public const TEXT_ADD_LINE = "Add line";
   public const TEXT_ADD_ROW = "Add row";
   public const TEXT_APPROVE = "Approve";
@@ -149,6 +152,7 @@ abstract class Constant {
   public const TEXT_MODIFY = "Modify";
   public const TEXT_NO = "No";
   public const TEXT_NONE = "None";
+  public const TEXT_REMOVE = "Remove";
   public const TEXT_REMOVE_LINE = "Remove line";
   public const TEXT_REMOVE_ROW = "Remove row";
   public const TEXT_RESET = "Reset";

@@ -1,8 +1,12 @@
 "use script";
 import { display } from "./display.js";
 export const input = {
-  championshipText : function() {
-    return "Championship";
+  addOption : function(text, value, objId) {
+    var option = new Option(text, value);
+    document.querySelector("#" + objId).add(option);
+  },
+  removeOption : function(value, objId) {
+    document.querySelector("#" + objId + " option[value='" + value + "']").remove();
   },
   changeState : function({checkId, aryChangeId} = {}) {
     const objCheck = document.querySelector("#" + checkId);

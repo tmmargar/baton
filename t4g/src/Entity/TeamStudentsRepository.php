@@ -1,5 +1,8 @@
 <?php
 namespace Baton\T4g\Entity;
+
+use PDO;
+
 class TeamStudentsRepository extends BaseRepository {
 //     public function getByName(string $name) {
 //         $names = explode(" ", $name);
@@ -10,4 +13,7 @@ class TeamStudentsRepository extends BaseRepository {
 //                     ->getQuery()->getResult();
 //     }
 
+    public function deleteForTeam(int $teamId) {
+        return $this->getEntityManager()->getConnection()->executeStatement("DELETE FROM baton_team_students WHERE team_id = ?", [$teamId], [PDO::PARAM_INT]);
+    }
 }

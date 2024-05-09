@@ -18,19 +18,6 @@ use Baton\T4g\Entity\InvoicePayments;
 date_default_timezone_set(timezoneId: "America/New_York");
 $entityManager = getEntityManager();
 
-$invoicesHistory = $entityManager->getRepository(Constant::ENTITY_INVOICES_HISTORY)->getById(invoiceId: NULL);
-echo "<br>invoice history count = " . count($invoicesHistory);
-foreach($invoicesHistory as $invoiceHistory) {
-    echo "<BR>id=" . $invoiceHistory->getInvoiceId() . "/revision=" . $invoiceHistory->getRevision() . "/action=" . $invoiceHistory->getAction();
-    foreach($invoiceHistory->getInvoiceLines() as $invoiceLine) {
-        echo "<BR>line id=" . $invoiceLine->getInvoiceLineId() . "/revision=" . $invoiceLine->getRevision() . "/action=" . $invoiceLine->getAction();
-    }
-    foreach($invoiceHistory->getInvoicePayments() as $invoicePayment) {
-        echo "<BR>pmt id=" . $invoicePayment->getInvoicePaymentId() . "/revision=" . $invoicePayment->getRevision() . "/action=" . $invoicePayment->getAction();
-    }
-}
-die();
-
 $et = new EventTypes();
 $et->setEventTypeName("orm event type name");
 $et->setEventTypeDescription("orm event type desc");
@@ -286,3 +273,24 @@ $idDeleted = $st->getStudentId();
 $entityManager->remove($st);
 $entityManager->flush();
 echo "<br>Deleted Students with ID=" . $idDeleted;
+
+$teams = $entityManager->getRepository(Constant::ENTITY_TEAMS)->getById(teamId: NULL);
+echo "<br>teams count = " . count($teams);
+foreach($teams as $team) {
+    echo "<BR>name = " . $team->getTeamName();
+    foreach($team->getTeamStudents() as $teamStudent) {
+        echo "<BR>stud = " . $teamStudent->getStudents()->getStudentName();
+    }
+}
+
+$invoicesHistory = $entityManager->getRepository(Constant::ENTITY_INVOICES_HISTORY)->getById(invoiceId: NULL);
+echo "<br>invoice history count = " . count($invoicesHistory);
+foreach($invoicesHistory as $invoiceHistory) {
+    echo "<BR>id=" . $invoiceHistory->getInvoiceId() . "/revision=" . $invoiceHistory->getRevision() . "/action=" . $invoiceHistory->getAction();
+    foreach($invoiceHistory->getInvoiceLines() as $invoiceLine) {
+        echo "<BR>line id=" . $invoiceLine->getInvoiceLineId() . "/revision=" . $invoiceLine->getRevision() . "/action=" . $invoiceLine->getAction();
+    }
+    foreach($invoiceHistory->getInvoicePayments() as $invoicePayment) {
+        echo "<BR>pmt id=" . $invoicePayment->getInvoicePaymentId() . "/revision=" . $invoicePayment->getRevision() . "/action=" . $invoicePayment->getAction();
+    }
+}

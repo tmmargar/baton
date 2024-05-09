@@ -1,0 +1,19 @@
+body {
+  max-width: 800px;
+}
+.child {
+  left: 40%;
+  /*position: absolute;*/
+  top: 40%;
+}
+div.addRemove {
+  display: flex;
+  align-items: center;
+}
+div.addRemoveButtons {
+  display: flex;
+  flex-direction: column;
+}
+select {
+  margin: 3px;
+}
