@@ -402,7 +402,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_history_link_" . $invoice->getInvoiceId(), target: NULL, title: "View history", text: (string) $invoice->getInvoiceId());
         $output .= "   <td>" . $invoice->getMembers()->getMemberName() . "</td>\n";
         $output .= "   <td>" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDate()) . "</td>\n";
-        $output .= "   <td" . (DateTimeUtility::formatDisplayDate(value: $now) > DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) ? " class=\"pastDue\"" : "") . ">" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) . "</td>\n";
+        $output .= "   <td" . ($invoice->getInvoiceBalance() > 0 && DateTimeUtility::formatDisplayDate(value: $now) > DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) ? " class=\"pastDue\"" : "") . ">" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) . "</td>\n";
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceAmount() . "</td>\n";
         $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_payments_link_" . $invoice->getInvoiceId(), target: "_self", title: "View payment history", text: (string) $invoice->getInvoicePaymentTotal());
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceBalance() . "</td>\n";
