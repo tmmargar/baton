@@ -283,7 +283,9 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
             $invoicePrinter->addTotal(name: "Total due", value: $invoices[0]->getInvoiceAmount(), colored: true);
             // add badge below products/services (e.g. show paid)
             // badge, color: hex code
-//             $invoicePrinter->addBadge(badge: "Payment Paid");
+            if ($invoices[0]->getInvoiceBalance() <= 0) {
+                $invoicePrinter->addBadge(badge: "Paid in Full");
+            }
             // add title/paragraph at bottom such as payment details or shipping info
             $invoicePrinter->addTitle(title: "Important Notice");
             // add title/paragraph at bottom such as payment details or shipping info
