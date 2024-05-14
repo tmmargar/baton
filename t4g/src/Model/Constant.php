@@ -21,6 +21,7 @@ abstract class Constant {
   public const ACCESSKEY_CONFIRM_DELETE = "l";
   public const ACCESSKEY_CONFIRM_PASSWORD = "c";
   public const ACCESSKEY_CREATE = "c";
+  public const ACCESSKEY_CREATE_PDF = "p";
   public const ACCESSKEY_DATE = "d";
   public const ACCESSKEY_DELETE = "l";
   public const ACCESSKEY_DESCRIPTION = "i";
@@ -118,6 +119,7 @@ abstract class Constant {
   public const MODE_APPROVE = "approve";
   public const MODE_CONFIRM = "confirm";
   public const MODE_CREATE = "create";
+  public const MODE_CREATE_PDF = "createpdf";
   public const MODE_DELETE = "delete";
   public const MODE_EMAIL = "email";
   public const MODE_LOGIN = "login";
@@ -146,6 +148,7 @@ abstract class Constant {
   public const TEXT_CANCEL = "Cancel";
   public const TEXT_CONFIRM_DELETE = "Confirm delete";
   public const TEXT_CREATE = "Create";
+  public const TEXT_CREATE_PDF = "Create PDF";
   public const TEXT_DELETE = "Delete";
   public const TEXT_GO = "Go";
   public const TEXT_MAKE_PAYMENT = "Make payment";

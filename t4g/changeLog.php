@@ -1,6 +1,6 @@
 <?php
 declare(strict_types = 1);
-namespace ccp;
+namespace Baton\T4g;
 require_once "init.php";
 $smarty->assign("title", "Twirling for Grace Change Log");
 $smarty->assign("heading", "");
@@ -9,7 +9,7 @@ $outputChange =
   "<h1>Change Log</h1>\n" .
   "<section class=\"version\" id=\"1.0.1\">" .
   " <h3>Version 1.0.1</h3>\n" .
-  " <b><time datetime=\"2024-5-7\">May 7, 2024</time></b>\n" .
+  " <b><time datetime=\"2024-5-13\">May 13, 2024</time></b>\n" .
   " <ul>\n" .
   "  <li>Administration of teams</li>\n" .
   " </ul>\n" .

@@ -41,7 +41,7 @@
 			<attribute name="composer" value="vendor"/>
 		</attributes>
 	</buildpathentry>
-	<buildpathentry kind="src" path="vendor/doctrine/doctrine-bundle">
+	<buildpathentry kind="src" path="vendor/doctrine/doctrine-bundle/src">
 		<attributes>
 			<attribute name="composer" value="vendor"/>
 		</attributes>
@@ -87,6 +87,11 @@
 		</attributes>
 	</buildpathentry>
 	<buildpathentry kind="src" path="vendor/doctrine/sql-formatter/src">
+		<attributes>
+			<attribute name="composer" value="vendor"/>
+		</attributes>
+	</buildpathentry>
+	<buildpathentry kind="src" path="vendor/konekt/pdf-invoice/src">
 		<attributes>
 			<attribute name="composer" value="vendor"/>
 		</attributes>
@@ -242,6 +247,11 @@
 		</attributes>
 	</buildpathentry>
 	<buildpathentry kind="src" path="vendor/sebastian/version/src">
+		<attributes>
+			<attribute name="composer" value="vendor"/>
+		</attributes>
+	</buildpathentry>
+	<buildpathentry kind="src" path="vendor/setasign/fpdf">
 		<attributes>
 			<attribute name="composer" value="vendor"/>
 		</attributes>

@@ -17,6 +17,7 @@ use Baton\T4g\Utility\SessionUtility;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
+use Konekt\PdfInvoice\InvoicePrinter;
 require_once "init.php";
 define("INVOICE_AMOUNT_FIELD_LABEL", "Amount");
 define("INVOICE_AMOUNT_FIELD_NAME", "invoiceAmount");
@@ -214,7 +215,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
     $hiddenSelectedRows = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: SELECTED_ROWS_FIELD_NAME, maxLength: NULL, name: SELECTED_ROWS_FIELD_NAME, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_HIDDEN, value: $ids, wrap: NULL);
     $output .= $hiddenSelectedRows->getHtml();
     $output .= "</div>\n";
-} elseif (Constant::MODE_SAVE_CREATE == $mode || Constant::MODE_SAVE_MODIFY == $mode || Constant::MODE_SAVE_PAYMENT == $mode) {
+} elseif (Constant::MODE_SAVE_CREATE == $mode || Constant::MODE_SAVE_MODIFY == $mode || Constant::MODE_SAVE_PAYMENT == $mode || Constant::MODE_CREATE_PDF == $mode) {
     $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
     if (Constant::MODE_SAVE_PAYMENT == $mode) {
 //         print_r($_POST);
@@ -240,6 +241,63 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
             } catch (Exception $e) {
                 $errors = $e->getMessage();
             }
+        }
+    } elseif (Constant::MODE_CREATE_PDF == $mode) {
+        foreach ($ary as $id) {
+            $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $id);
+            // size: A4/Letter/Legal, currency: any string, language: any language in inc/languages folder
+            $invoicePrinter = new InvoicePrinter(size: "Letter", currency: "$", language: "en");
+            // decimals_sep: any string, thousands_sep: any string, alignment: left/right, space: true/false, negativeParenthesis: true/false
+            $invoicePrinter->setNumberFormat(decimals_sep: ".", thousands_sep: ",", alignment: "left", space: false, negativeParenthesis: true);
+            // custom color
+            $invoicePrinter->setColor(rgbcolor: "#007fff");
+            // maxWidth: optional #, maxHeight; optional #)
+            $invoicePrinter->setLogo(logo: "images/logo.jpg");
+            // title shown in upper right corner
+            $invoicePrinter->setType(title: "Invoice");
+            // invoice # shown in upper right corner
+            $invoicePrinter->setReference(reference: $invoices[0]->getInvoiceId());
+            $invoicePrinter->setDate(date: DateTimeUtility::formatDisplayDateInvoice(value: $invoices[0]->getInvoiceDate()));
+//             $invoicePrinter->setTime(time: date("h:i:s A", time()));
+            $invoicePrinter->setDue(date: DateTimeUtility::formatDisplayDateInvoice(value: $invoices[0]->getInvoiceDueDate()));
+            //$invoicePrinter->addCustomHeader(title: "title here", content: "content here");
+            // company details (array first element will be bolded can have as many lines as needed)
+            $invoicePrinter->setFrom(["Twirling for Grace", "877 S. Hacker Rd", "Brighton, MI 48114"]);
+            // client details (array first element will be bolded can have as many lines as needed)
+            $invoicePrinter->setTo([$invoices[0]->getMembers()->getMemberName()]);
+            // switch horizontal position of company and client (default is company on left)
+            //$invoicePrinter->flipflop();
+            // hide issuer and client header row
+            //$invoicePrinter->hideToFromHeaders();
+            // item, description: use <br> or \n for line break, quantity: #, vat: string percent or actual # amount, price: #, discount: string percent or actual # amount, total: #
+            // only name required pass false to disable any other options
+            foreach ($invoices[0]->getInvoiceLines() as $invoiceLine) {
+                $invoicePrinter->addItem(item: $invoiceLine->getStudents()->getStudentName(), description: $invoiceLine->getEventTypes()->getEventTypeName(), quantity: false, vat: false, price: false, discount: false, total: $invoiceLine->getInvoiceLineAmount());
+            }
+            // description font size default is 7
+            //$invoicePrinter->setFontSizeProductDescription(9);
+            // alignment: horizontal/vertical
+            $invoicePrinter->setTotalsAlignment(alignment: "horizontal");
+            // add row for calculations/totals unlimited # of rows
+            // name, value, colored: true/false true set theme color as background color of row
+            $invoicePrinter->addTotal(name: "Total due", value: $invoices[0]->getInvoiceAmount(), colored: true);
+            // add badge below products/services (e.g. show paid)
+            // badge, color: hex code
+//             $invoicePrinter->addBadge(badge: "Payment Paid");
+            // add title/paragraph at bottom such as payment details or shipping info
+            $invoicePrinter->addTitle(title: "Important Notice");
+            // add title/paragraph at bottom such as payment details or shipping info
+            $invoicePrinter->addParagraph(paragraph: "If you pay weekly your invoice is due 14 days from Friday.");
+            // override term from language file
+            $invoicePrinter->changeLanguageTerm(term: "number", new: "Invoice #");
+            $invoicePrinter->changeLanguageTerm(term: "date", new: "Invoice Date");
+            $invoicePrinter->changeLanguageTerm(term: "due", new: "Invoice Due");
+            $invoicePrinter->changeLanguageTerm(term: "from", new: "Bill From");
+            $invoicePrinter->changeLanguageTerm(term: "to", new: "Bill To");
+            // small text to display in bottom left corder
+            $invoicePrinter->setFooternote(note: "Twirling for Grace");
+            // name, destination: I => Display on browser, D => Force Download, F => local path save, S => return document path
+            $invoicePrinter->render(name: "invoice_" . $invoices[0]->getInvoiceId() . "_" . date("mdyhis") . ".pdf", destination: "D");
         }
     } else {
         foreach ($ary as $id) {
@@ -337,7 +395,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
 if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::MODE_CONFIRM == $mode) {
     if (Constant::MODE_CONFIRM == $mode) {
         if ($ids != DEFAULT_VALUE_BLANK) {
-            $invoices = $entityManager->find(Constant::ENTITY_INVOICES, (int) $ids);
+            $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $id);
             $entityManager->remove($invoices);
             try {
                 $entityManager->flush();
@@ -365,6 +423,8 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $output .= $buttonDelete->getHtml();
         $buttonMakePayment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MAKE_PAYMENT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MAKE_PAYMENT, maxLength: NULL, name: Constant::TEXT_MAKE_PAYMENT, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MAKE_PAYMENT, wrap: NULL);
         $output .= $buttonMakePayment->getHtml();
+        $buttonCreatePdf = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE_PDF, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_CREATE_PDF, maxLength: NULL, name: Constant::TEXT_CREATE_PDF, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE_PDF, wrap: NULL);
+        $output .= $buttonCreatePdf->getHtml();
     } else if (Constant::MODE_DELETE == $mode) {
         $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CONFIRM_DELETE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CONFIRM_DELETE, maxLength: NULL, name: Constant::TEXT_CONFIRM_DELETE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CONFIRM_DELETE, wrap: NULL);
         $output .= $buttonDelete->getHtml();
@@ -404,7 +464,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $output .= "   <td>" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDate()) . "</td>\n";
         $output .= "   <td" . ($invoice->getInvoiceBalance() > 0 && DateTimeUtility::formatDisplayDate(value: $now) > DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) ? " class=\"pastDue\"" : "") . ">" . DateTimeUtility::formatDisplayDate(value: $invoice->getInvoiceDueDate()) . "</td>\n";
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceAmount() . "</td>\n";
-        $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_payments_link_" . $invoice->getInvoiceId(), target: "_self", title: "View payment history", text: (string) $invoice->getInvoicePaymentTotal());
+        $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_payments_link_" . $invoice->getInvoiceId(), target: "_self", title: "View payment history", text: (string) "$" . $invoice->getInvoicePaymentTotal());
         $output .= "   <td class=\"negative\">$" . $invoice->getInvoiceBalance() . "</td>\n";
         $output .= "   <td>" . HtmlUtility::buildLink(href: "#", id: "invoice_lines_link_" . $invoice->getInvoiceId(), target: "_self", title: "View lines history", text: (string) count($invoice->getInvoiceLines()));
         $output .= "   <td><pre>" . $invoice->getInvoiceComment() . "</pre></td>\n";
@@ -629,6 +689,8 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $output .= $buttonDelete->getHtml();
         $buttonMakePayment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MAKE_PAYMENT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MAKE_PAYMENT . "_2", maxLength: NULL, name: Constant::TEXT_MAKE_PAYMENT . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MAKE_PAYMENT, wrap: NULL);
         $output .= $buttonMakePayment->getHtml();
+        $buttonCreatePdf = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE_PDF, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_CREATE_PDF . "_2", maxLength: NULL, name: Constant::TEXT_CREATE_PDF . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE_PDF, wrap: NULL);
+        $output .= $buttonCreatePdf->getHtml();
         $output .= "</div>\n";
     }
 }

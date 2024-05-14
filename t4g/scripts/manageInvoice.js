@@ -167,6 +167,7 @@ document.querySelectorAll("#dataTbl tbody tr")?.forEach(row => row.addEventListe
         document.querySelectorAll("[id^='modify']")?.forEach(btn => { btn.disabled = selected; });
         //document.querySelectorAll("[id^='delete']")?.forEach(btn => { btn.disabled = selected; });
         document.querySelectorAll("[id^='makePayment']")?.forEach(btn => { btn.disabled = selected; });
+        document.querySelectorAll("[id^='createPDF']")?.forEach(btn => { btn.disabled = selected; });
         // if 1 row is already selected or clicking on link
         if (selected || document.querySelectorAll("#dataTbl tbody tr.selected").length == 1 || event.target.localName == "a") {
             row.classList.remove("selected");
@@ -204,6 +205,12 @@ document.addEventListener("click", (event) => {
       document.querySelector("#invoicePaymentDueDate").value = event.target.parentElement.parentElement.parentElement.children[1].children[1].innerHTML;
       document.querySelector("#mode").value = event.target.value.replace(" ", "").toLowerCase();
       document.querySelector("#frmManage").submit();
+  } else if (event.target && event.target.id.includes("createPDF")) {
+      document.querySelectorAll("#dataTbl tbody tr.selected")?.forEach(row => {
+        const id = row.children[0].children[0].id.split("_");
+        document.querySelector("#ids").value = id[3];
+      });
+      document.querySelector("#mode").value = event.target.value.replace(" ", "").toLowerCase();
   } else if (event.target && event.target.id.includes("reset")) {
     input.restorePreviousValue({selectors: ["[id^='invoiceDate_']", "[id^='invoiceDueDate_']", "[id^='invoiceAmount_']", "[id^='invoiceComment_']", "[id^='member_']"]});
   } else if (event.target && (event.target.id.includes("modify") || event.target.id.includes("delete"))) {

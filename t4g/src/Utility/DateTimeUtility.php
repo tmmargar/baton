@@ -10,6 +10,7 @@ abstract class DateTimeUtility {
     private const DATE_FORMAT_DATE_INTERVAL_DAYS = "%a";
     private const DATE_FORMAT_DATE_INTERVAL_SIGN_DAYS = "%R%a";
     private const DATE_FORMAT_DISPLAY_DATE = "m/d/Y";
+    private const DATE_FORMAT_DISPLAY_DATE_INVOICE = "M dS, Y";
     private const DATE_FORMAT_DISPLAY_DATE_TIME = "m/d/Y h:i:s A";
     private const DATE_FORMAT_DISPLAY_DATE_TIME_MILLISECONDS = "m/d/Y h:i:s v";
     private const DATE_FORMAT_DISPLAY_LONG = "D, M j, Y h:i A";
@@ -41,6 +42,9 @@ abstract class DateTimeUtility {
     }
     public static function formatDisplayDate(DateTime $value) {
         return $value->format(self::DATE_FORMAT_DISPLAY_DATE);
+    }
+    public static function formatDisplayDateInvoice(DateTime $value) {
+        return $value->format(self::DATE_FORMAT_DISPLAY_DATE_INVOICE);
     }
     public static function formatDisplayDateTime(DateTime $value) {
         return $value->format(self::DATE_FORMAT_DISPLAY_DATE_TIME);
