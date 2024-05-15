@@ -79,7 +79,8 @@ export const inputLocal = {
     inputLocal.enableButtons(objId);
   },
   setId : function({selectedRow} = {}) {
-    return selectedRow.children[0].innerHTML;
+    // first cell has link so need to get its text to get the value
+    return selectedRow.children[0].children[0].innerHTML;
   },
   setIds : function() {
     const selectedRows = dataTable.getSelectedRows({jQueryTable: $("#dataTbl").dataTable()});
@@ -167,7 +168,7 @@ document.querySelectorAll("#dataTbl tbody tr")?.forEach(row => row.addEventListe
         document.querySelectorAll("[id^='modify']")?.forEach(btn => { btn.disabled = selected; });
         //document.querySelectorAll("[id^='delete']")?.forEach(btn => { btn.disabled = selected; });
         document.querySelectorAll("[id^='makePayment']")?.forEach(btn => { btn.disabled = selected; });
-        document.querySelectorAll("[id^='createPDF']")?.forEach(btn => { btn.disabled = selected; });
+        document.querySelectorAll("[id^='viewPDF']")?.forEach(btn => { btn.disabled = selected; });
         // if 1 row is already selected or clicking on link
         if (selected || document.querySelectorAll("#dataTbl tbody tr.selected").length == 1 || event.target.localName == "a") {
             row.classList.remove("selected");
@@ -194,7 +195,7 @@ document.addEventListener("click", (event) => {
   } else if (event.target && event.target.id.includes("makePayment")) {
       event.preventDefault();
       event.stopPropagation();
-      const id = document.querySelector("table tbody tr.selected td:nth-child(1)").innerHTML;
+      const id = document.querySelector("table tbody tr.selected td:nth-child(1)").children[0].innerHTML;
       document.querySelector("#invoicePaymentAmount_" + id).value = document.querySelector("table tbody tr.selected td:nth-child(7)").innerHTML.replace("$", "");
       document.querySelector("#dialogInvoiceMakePayments_" + id).showModal();
   } else if (event.target && event.target.id.includes("savePayment")) {
@@ -205,7 +206,7 @@ document.addEventListener("click", (event) => {
       document.querySelector("#invoicePaymentDueDate").value = event.target.parentElement.parentElement.parentElement.children[1].children[1].innerHTML;
       document.querySelector("#mode").value = event.target.value.replace(" ", "").toLowerCase();
       document.querySelector("#frmManage").submit();
-  } else if (event.target && event.target.id.includes("createPDF")) {
+  } else if (event.target && event.target.id.includes("viewPDF")) {
       document.querySelectorAll("#dataTbl tbody tr.selected")?.forEach(row => {
         const id = row.children[0].children[0].id.split("_");
         document.querySelector("#ids").value = id[3];

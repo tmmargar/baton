@@ -51,8 +51,8 @@ $smarty->assign("style", "<link href=\"css/manageInvoice.css\" rel=\"stylesheet\
 $errors = NULL;
 $outputAdditional = "";
 $now = new DateTime();
-if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
-    $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $ids);
+if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
+    $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $ids, memberId: SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 ? NULL : SessionUtility::getValue(SessionUtility::OBJECT_NAME_MEMBERID));
     $output .= " <div class=\"buttons center\">\n";
     $buttonAddRow = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_ADD_ROW, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_ADD_ROW . "_2", maxLength: NULL, name: Constant::TEXT_ADD_ROW . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_BUTTON, value: Constant::TEXT_ADD_LINE, wrap: NULL);
     $output .= $buttonAddRow->getHtml();
@@ -91,7 +91,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
             $textBoxDate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: array("timePicker"), cols: NULL, disabled: false, id: INVOICE_DATE_FIELD_NAME . "_" . $id, maxLength: 30, name: INVOICE_DATE_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_DATE_TIME, value: ((0 < count($invoices)) ? DateTimeUtility::formatDatabaseDateTime(value: $invoices[0]->getInvoiceDate()) : DateTimeUtility::formatDatabaseDateTime(value: $now)), wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxDate->getHtml() . "</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . INVOICE_DUE_DATE_FIELD_NAME . "_" . $id . "\">" . INVOICE_DUE_DATE_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
-            $dueDate = $now->add(new \DateInterval("P7D"));
+            $dueDate = $now->add(new \DateInterval("P14D"));
             $textBoxDueDate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DUE_DATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: array("timePicker"), cols: NULL, disabled: false, id: INVOICE_DUE_DATE_FIELD_NAME . "_" . $id, maxLength: 30, name: INVOICE_DUE_DATE_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_DATE_TIME, value: ((0 < count($invoices)) ? DateTimeUtility::formatDatabaseDateTime(value: $invoices[0]->getInvoiceDueDate()) : DateTimeUtility::formatDatabaseDateTime(value: $dueDate)), wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxDueDate->getHtml() . "</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . INVOICE_AMOUNT_FIELD_NAME . "_" . $id . "\">" . INVOICE_AMOUNT_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
@@ -159,7 +159,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
                     $output .= $option->getHtml();
                     foreach ($eventTypes as $eventType) {
                         foreach ($eventType->getEventTypeCosts() as $eventTypeCost) {
-                            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: 0 < count($invoices) ? $invoiceLines->getEventTypes()->getEventTypeId() : "", suffix: NULL, text: $eventType->getEventTypeName() . " (" . $eventTypeCost->getEventTypeStudentCount() . " student(s))", value: $eventType->getEventTypeId() . "::" . $eventTypeCost->getEventTypeCost());
+                            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: 0 < count($invoices) ? $invoiceLines->getEventTypes()->getEventTypeId() . "::" . $eventTypeCost->getEventTypeCost() : "", suffix: NULL, text: $eventType->getEventTypeName() . " (" . $eventTypeCost->getEventTypeStudentCount() . " student(s))", value: $eventType->getEventTypeId() . "::" . $eventTypeCost->getEventTypeCost());
                             $output .= $option->getHtml();
                         }
                     }
@@ -215,9 +215,9 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
     $hiddenSelectedRows = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: SELECTED_ROWS_FIELD_NAME, maxLength: NULL, name: SELECTED_ROWS_FIELD_NAME, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_HIDDEN, value: $ids, wrap: NULL);
     $output .= $hiddenSelectedRows->getHtml();
     $output .= "</div>\n";
-} elseif (Constant::MODE_SAVE_CREATE == $mode || Constant::MODE_SAVE_MODIFY == $mode || Constant::MODE_SAVE_PAYMENT == $mode || Constant::MODE_CREATE_PDF == $mode) {
+} elseif (Constant::MODE_SAVE_CREATE == $mode || Constant::MODE_SAVE_MODIFY == $mode || Constant::MODE_SAVE_PAYMENT == $mode || Constant::MODE_VIEW_PDF == $mode) {
     $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
-    if (Constant::MODE_SAVE_PAYMENT == $mode) {
+    if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && Constant::MODE_SAVE_PAYMENT == $mode) {
 //         print_r($_POST);
         foreach ($ary as $id) {
 //             $invoiceId = (int) ((isset($_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id])) ? $_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id] : 0);
@@ -242,9 +242,9 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
                 $errors = $e->getMessage();
             }
         }
-    } elseif (Constant::MODE_CREATE_PDF == $mode) {
+    } elseif (Constant::MODE_VIEW_PDF == $mode) {
         foreach ($ary as $id) {
-            $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $id);
+            $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $id, memberId: SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 ? NULL : SessionUtility::getValue(SessionUtility::OBJECT_NAME_MEMBERID));
             // size: A4/Letter/Legal, currency: any string, language: any language in inc/languages folder
             $invoicePrinter = new InvoicePrinter(size: "Letter", currency: "$", language: "en");
             // decimals_sep: any string, thousands_sep: any string, alignment: left/right, space: true/false, negativeParenthesis: true/false
@@ -302,100 +302,102 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
             $invoicePrinter->render(name: "invoice_" . $invoices[0]->getInvoiceId() . "_" . date("mdyhis") . ".pdf", destination: "D");
         }
     } else {
-        foreach ($ary as $id) {
-            $invoiceId = (int) ((isset($_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id])) ? $_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id] : 0);
-            $invoiceAmount = (isset($_POST[INVOICE_AMOUNT_FIELD_NAME . "_" . $id])) ? $_POST[INVOICE_AMOUNT_FIELD_NAME . "_" . $id] : 0;
-            $invoiceMemberId = (isset($_POST[INVOICE_MEMBER_FIELD_NAME . "_" . $id])) ? $_POST[INVOICE_MEMBER_FIELD_NAME . "_" . $id] : 0;
-            $invoiceComment = (isset($_POST[INVOICE_COMMENT_FIELD_NAME . "_" . $id])) ? $_POST[INVOICE_COMMENT_FIELD_NAME . "_" . $id] : NULL;
-            if ("" == $invoiceComment) {
-                $invoiceComment = NULL;
-            }
-            $invoiceDate = isset($_POST[INVOICE_DATE_FIELD_NAME . "_" . $id]) ? $_POST[INVOICE_DATE_FIELD_NAME . "_" . $id] : DEFAULT_VALUE_BLANK;
-            $invoiceDueDate = isset($_POST[INVOICE_DUE_DATE_FIELD_NAME . "_" . $id]) ? $_POST[INVOICE_DUE_DATE_FIELD_NAME . "_" . $id] : DEFAULT_VALUE_BLANK;
-            if (Constant::MODE_SAVE_CREATE == $mode) {
-                $in = new Invoices();
-                $in->setInvoiceAmount((float) $invoiceAmount);
-                $in->setInvoiceComment($invoiceComment);
-                $in->setInvoiceDate(new DateTime(datetime: $invoiceDate));
-                $in->setInvoiceDueDate(new DateTime(datetime: $invoiceDueDate));
-                $invoiceMember = $entityManager->find(Constant::ENTITY_MEMBERS, $invoiceMemberId);
-                $in->setMembers($invoiceMember);
-                $entityManager->persist($in);
-                try {
-                    $entityManager->flush();
-                } catch (Exception $e) {
-                    $errors = $e->getMessage();
+        if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0) {
+            foreach ($ary as $id) {
+                $invoiceId = (int) ((isset($_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id])) ? $_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id] : 0);
+                $invoiceAmount = (isset($_POST[INVOICE_AMOUNT_FIELD_NAME . "_" . $id])) ? $_POST[INVOICE_AMOUNT_FIELD_NAME . "_" . $id] : 0;
+                $invoiceMemberId = (isset($_POST[INVOICE_MEMBER_FIELD_NAME . "_" . $id])) ? $_POST[INVOICE_MEMBER_FIELD_NAME . "_" . $id] : 0;
+                $invoiceComment = (isset($_POST[INVOICE_COMMENT_FIELD_NAME . "_" . $id])) ? $_POST[INVOICE_COMMENT_FIELD_NAME . "_" . $id] : NULL;
+                if ("" == $invoiceComment) {
+                    $invoiceComment = NULL;
                 }
-            } elseif (Constant::MODE_SAVE_MODIFY == $mode) {
-                $in = $entityManager->find(Constant::ENTITY_INVOICES, $invoiceId);
-                $in->setInvoiceAmount((float) $invoiceAmount);
-                $in->setInvoiceComment($invoiceComment);
-                $in->setInvoiceDate(new DateTime(datetime: $invoiceDate));
-                $in->setInvoiceDueDate(new DateTime(datetime: $invoiceDueDate));
-                $invoiceMember = $entityManager->find(Constant::ENTITY_MEMBERS, $invoiceMemberId);
-                $in->setMembers($invoiceMember);
-                $entityManager->persist($in);
-                try {
-                    $entityManager->flush();
-                } catch (Exception $e) {
-                    $errors = $e->getMessage();
-                }
-            }
-            $done = false;
-            $ctrTemp = 1;
-            while (!$done) {
-                if (isset($_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp])) {
-                    $invoiceLineId = $_POST[INVOICE_LINE_ID_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
-                    $invoiceLineStudentId = $_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
-                    $invoiceLineStudent = $entityManager->find(Constant::ENTITY_STUDENTS, $invoiceLineStudentId);
-                    $invoiceLineEventTypeId = explode("::", $_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctrTemp])[0];
-                    $invoiceLineEventType = $entityManager->find(Constant::ENTITY_EVENT_TYPES, $invoiceLineEventTypeId);
-                    $invoiceLineAmount = $_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
-                    $invoiceLineComment = NULL;
-                    if (isset($_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp])) {
-                        $invoiceLineComment = $_POST[INVOICE_LINE_COMMENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
-                        if ("" == $invoiceLineComment) {
-                            $invoiceLineComment = NULL;
-                        }
-                    }
-    //                 $in = $entityManager->find(Constant::ENTITY_INVOICES, $invoiceId);
-                    $il = $entityManager->find(Constant::ENTITY_INVOICE_LINES, $invoiceLineId);
-                    if (!isset($il)) {
-                        $il = new InvoiceLines();
-                    }
-                    $il->setEventTypes($invoiceLineEventType);
-                    $il->setInvoiceLineAmount((int) $invoiceLineAmount);
-                    $il->setInvoiceLineComment($invoiceLineComment);
-                    $il->setStudents($invoiceLineStudent);
-                    $il->setInvoices($in);
-                    $entityManager->persist($il);
+                $invoiceDate = isset($_POST[INVOICE_DATE_FIELD_NAME . "_" . $id]) ? $_POST[INVOICE_DATE_FIELD_NAME . "_" . $id] : DEFAULT_VALUE_BLANK;
+                $invoiceDueDate = isset($_POST[INVOICE_DUE_DATE_FIELD_NAME . "_" . $id]) ? $_POST[INVOICE_DUE_DATE_FIELD_NAME . "_" . $id] : DEFAULT_VALUE_BLANK;
+                if (Constant::MODE_SAVE_CREATE == $mode) {
+                    $in = new Invoices();
+                    $in->setInvoiceAmount((float) $invoiceAmount);
+                    $in->setInvoiceComment($invoiceComment);
+                    $in->setInvoiceDate(new DateTime(datetime: $invoiceDate));
+                    $in->setInvoiceDueDate(new DateTime(datetime: $invoiceDueDate));
+                    $invoiceMember = $entityManager->find(Constant::ENTITY_MEMBERS, $invoiceMemberId);
+                    $in->setMembers($invoiceMember);
+                    $entityManager->persist($in);
                     try {
                         $entityManager->flush();
                     } catch (Exception $e) {
                         $errors = $e->getMessage();
                     }
-                    $ctrTemp++;
-                } else {
-                    $done = true;
+                } elseif (Constant::MODE_SAVE_MODIFY == $mode) {
+                    $in = $entityManager->find(Constant::ENTITY_INVOICES, $invoiceId);
+                    $in->setInvoiceAmount((float) $invoiceAmount);
+                    $in->setInvoiceComment($invoiceComment);
+                    $in->setInvoiceDate(new DateTime(datetime: $invoiceDate));
+                    $in->setInvoiceDueDate(new DateTime(datetime: $invoiceDueDate));
+                    $invoiceMember = $entityManager->find(Constant::ENTITY_MEMBERS, $invoiceMemberId);
+                    $in->setMembers($invoiceMember);
+                    $entityManager->persist($in);
+                    try {
+                        $entityManager->flush();
+                    } catch (Exception $e) {
+                        $errors = $e->getMessage();
+                    }
                 }
+                $done = false;
+                $ctrTemp = 1;
+                while (!$done) {
+                    if (isset($_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp])) {
+                        $invoiceLineId = $_POST[INVOICE_LINE_ID_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
+                        $invoiceLineStudentId = $_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
+                        $invoiceLineStudent = $entityManager->find(Constant::ENTITY_STUDENTS, $invoiceLineStudentId);
+                        $invoiceLineEventTypeId = explode("::", $_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctrTemp])[0];
+                        $invoiceLineEventType = $entityManager->find(Constant::ENTITY_EVENT_TYPES, $invoiceLineEventTypeId);
+                        $invoiceLineAmount = $_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
+                        $invoiceLineComment = NULL;
+                        if (isset($_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp])) {
+                            $invoiceLineComment = $_POST[INVOICE_LINE_COMMENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
+                            if ("" == $invoiceLineComment) {
+                                $invoiceLineComment = NULL;
+                            }
+                        }
+        //                 $in = $entityManager->find(Constant::ENTITY_INVOICES, $invoiceId);
+                        $il = $entityManager->find(Constant::ENTITY_INVOICE_LINES, $invoiceLineId);
+                        if (!isset($il)) {
+                            $il = new InvoiceLines();
+                        }
+                        $il->setEventTypes($invoiceLineEventType);
+                        $il->setInvoiceLineAmount((int) $invoiceLineAmount);
+                        $il->setInvoiceLineComment($invoiceLineComment);
+                        $il->setStudents($invoiceLineStudent);
+                        $il->setInvoices($in);
+                        $entityManager->persist($il);
+                        try {
+                            $entityManager->flush();
+                        } catch (Exception $e) {
+                            $errors = $e->getMessage();
+                        }
+                        $ctrTemp++;
+                    } else {
+                        $done = true;
+                    }
+                }
+                // doctrine ORM stores 1 instance of entity so need to refresh after adding lines
+                $entityManager->refresh($in);
+                if (isset($errors)) {
+                    $output .=
+                        "<script type=\"module\">\n" .
+                        "  import { dataTable, display, input } from \"./scripts/import.js\";\n" .
+                        "  display.showErrors({errors: [ \"" . $errors . "\" ]});\n" .
+                        "</script>\n";
+                }
+    //             $ids = DEFAULT_VALUE_BLANK;
             }
-            // doctrine ORM stores 1 instance of entity so need to refresh after adding lines
-            $entityManager->refresh($in);
-            if (isset($errors)) {
-                $output .=
-                    "<script type=\"module\">\n" .
-                    "  import { dataTable, display, input } from \"./scripts/import.js\";\n" .
-                    "  display.showErrors({errors: [ \"" . $errors . "\" ]});\n" .
-                    "</script>\n";
-            }
-//             $ids = DEFAULT_VALUE_BLANK;
         }
     }
     $ids = DEFAULT_VALUE_BLANK;
     $mode = Constant::MODE_VIEW;
 }
 if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::MODE_CONFIRM == $mode) {
-    if (Constant::MODE_CONFIRM == $mode) {
+    if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && Constant::MODE_CONFIRM == $mode) {
         if ($ids != DEFAULT_VALUE_BLANK) {
             $invoices = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: (int) $id);
             $entityManager->remove($invoices);
@@ -417,17 +419,19 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     }
     $output .= "<div class=\"buttons center\">\n";
     if (Constant::MODE_VIEW == $mode) {
-        $buttonCreate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CREATE, maxLength: NULL, name: Constant::TEXT_CREATE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE, wrap: NULL);
-        $output .= $buttonCreate->getHtml();
-        $buttonModify = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MODIFY, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MODIFY, maxLength: NULL, name: Constant::TEXT_MODIFY, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MODIFY, wrap: NULL);
-        $output .= $buttonModify->getHtml();
-        $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DELETE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_DELETE, maxLength: NULL, name: Constant::TEXT_DELETE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_DELETE, wrap: NULL);
-        $output .= $buttonDelete->getHtml();
-        $buttonMakePayment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MAKE_PAYMENT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MAKE_PAYMENT, maxLength: NULL, name: Constant::TEXT_MAKE_PAYMENT, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MAKE_PAYMENT, wrap: NULL);
-        $output .= $buttonMakePayment->getHtml();
-        $buttonCreatePdf = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE_PDF, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_CREATE_PDF, maxLength: NULL, name: Constant::TEXT_CREATE_PDF, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE_PDF, wrap: NULL);
+        if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0) {
+            $buttonCreate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CREATE, maxLength: NULL, name: Constant::TEXT_CREATE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE, wrap: NULL);
+            $output .= $buttonCreate->getHtml();
+            $buttonModify = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MODIFY, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MODIFY, maxLength: NULL, name: Constant::TEXT_MODIFY, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MODIFY, wrap: NULL);
+            $output .= $buttonModify->getHtml();
+            $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DELETE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_DELETE, maxLength: NULL, name: Constant::TEXT_DELETE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_DELETE, wrap: NULL);
+            $output .= $buttonDelete->getHtml();
+            $buttonMakePayment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MAKE_PAYMENT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MAKE_PAYMENT, maxLength: NULL, name: Constant::TEXT_MAKE_PAYMENT, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MAKE_PAYMENT, wrap: NULL);
+            $output .= $buttonMakePayment->getHtml();
+        }
+        $buttonCreatePdf = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_VIEW_PDF, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_VIEW_PDF, maxLength: NULL, name: Constant::TEXT_VIEW_PDF, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_VIEW_PDF, wrap: NULL);
         $output .= $buttonCreatePdf->getHtml();
-    } else if (Constant::MODE_DELETE == $mode) {
+    } else if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && Constant::MODE_DELETE == $mode) {
         $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CONFIRM_DELETE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CONFIRM_DELETE, maxLength: NULL, name: Constant::TEXT_CONFIRM_DELETE, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CONFIRM_DELETE, wrap: NULL);
         $output .= $buttonDelete->getHtml();
         $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CANCEL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CANCEL, maxLength: NULL, name: Constant::TEXT_CANCEL, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CANCEL, wrap: NULL, noValidate: true);
@@ -445,7 +449,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     $hiddenPaymentDueDate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: HIDDEN_PAYMENT_DUE_DATE_FIELD_NAME, maxLength: NULL, name: HIDDEN_PAYMENT_DUE_DATE_FIELD_NAME, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_HIDDEN, value: NULL, wrap: NULL);
     $output .= $hiddenPaymentDueDate->getHtml();
     $id = ("" == $ids) ? NULL : (int) $ids;
-    $results = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: $id);
+    $results = $entityManager->getRepository(Constant::ENTITY_INVOICES)->getById(invoiceId: $id, memberId: SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 ? NULL : SessionUtility::getValue(SessionUtility::OBJECT_NAME_MEMBERID));
     $output .= "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"display\" id=\"" . Constant::ID_TABLE_DATA . "\" style=\"width: 100%;\">\n";
     $output .= " <thead>\n";
     $output .= "  <th>#</th>\n";
@@ -683,15 +687,17 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     }
     if (Constant::MODE_VIEW == $mode) {
         $output .= "<div class=\"buttons center\">\n";
-        $buttonCreate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CREATE . "_2", maxLength: NULL, name: Constant::TEXT_CREATE . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE, wrap: NULL);
-        $output .= $buttonCreate->getHtml();
-        $buttonModify = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MODIFY, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MODIFY . "_2", maxLength: NULL, name: Constant::TEXT_MODIFY . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MODIFY, wrap: NULL);
-        $output .= $buttonModify->getHtml();
-        $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DELETE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_DELETE . "_2", maxLength: NULL, name: Constant::TEXT_DELETE . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_DELETE, wrap: NULL);
-        $output .= $buttonDelete->getHtml();
-        $buttonMakePayment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MAKE_PAYMENT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MAKE_PAYMENT . "_2", maxLength: NULL, name: Constant::TEXT_MAKE_PAYMENT . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MAKE_PAYMENT, wrap: NULL);
-        $output .= $buttonMakePayment->getHtml();
-        $buttonCreatePdf = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE_PDF, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_CREATE_PDF . "_2", maxLength: NULL, name: Constant::TEXT_CREATE_PDF . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE_PDF, wrap: NULL);
+        if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0) {
+            $buttonCreate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_CREATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: Constant::TEXT_CREATE . "_2", maxLength: NULL, name: Constant::TEXT_CREATE . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_CREATE, wrap: NULL);
+            $output .= $buttonCreate->getHtml();
+            $buttonModify = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MODIFY, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MODIFY . "_2", maxLength: NULL, name: Constant::TEXT_MODIFY . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MODIFY, wrap: NULL);
+            $output .= $buttonModify->getHtml();
+            $buttonDelete = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DELETE, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_DELETE . "_2", maxLength: NULL, name: Constant::TEXT_DELETE . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_DELETE, wrap: NULL);
+            $output .= $buttonDelete->getHtml();
+            $buttonMakePayment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_MAKE_PAYMENT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_MAKE_PAYMENT . "_2", maxLength: NULL, name: Constant::TEXT_MAKE_PAYMENT . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_MAKE_PAYMENT, wrap: NULL);
+            $output .= $buttonMakePayment->getHtml();
+        }
+        $buttonCreatePdf = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_VIEW_PDF, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: true, id: Constant::TEXT_VIEW_PDF . "_2", maxLength: NULL, name: Constant::TEXT_VIEW_PDF . "_2", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_SUBMIT, value: Constant::TEXT_VIEW_PDF, wrap: NULL);
         $output .= $buttonCreatePdf->getHtml();
         $output .= "</div>\n";
     }

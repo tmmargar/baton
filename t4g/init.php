@@ -35,8 +35,8 @@ if (strpos($_SERVER["SCRIPT_NAME"], "index.php") === false && strpos($_SERVER["S
   //echo "<br>uid -> " . SessionUtility::getValue(name: SessionUtility::OBJECT_NAME_MEMBERID);
   //echo "<BR>GET -> " . print_r($_GET, true);
   //echo "<br>get id -> " . $_GET["id"];
-if (SessionUtility::getValue(name: SessionUtility::OBJECT_NAME_ADMINISTRATOR) != Constant::FLAG_YES_DATABASE && strpos($_SERVER["SCRIPT_NAME"], "manageInvoice.php")) {
-    echo "<h1 style=\"color: red;\">You are not authorized to access this page!!</h1>";
-    die();
-}
+// if (SessionUtility::getValue(name: SessionUtility::OBJECT_NAME_ADMINISTRATOR) != Constant::FLAG_YES_DATABASE && strpos($_SERVER["SCRIPT_NAME"], "manageInvoice.php")) {
+//     echo "<h1 style=\"color: red;\">You are not authorized to access this page!!</h1>";
+//     die();
+// }
 require_once "initDefaults.php";

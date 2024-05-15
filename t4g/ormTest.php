@@ -283,7 +283,7 @@ foreach($teams as $team) {
     }
 }
 
-$invoicesHistory = $entityManager->getRepository(Constant::ENTITY_INVOICES_HISTORY)->getById(invoiceId: NULL);
+$invoicesHistory = $entityManager->getRepository(Constant::ENTITY_INVOICES_HISTORY)->getById(invoiceId: NULL, memberId: NULL);
 echo "<br>invoice history count = " . count($invoicesHistory);
 foreach($invoicesHistory as $invoiceHistory) {
     echo "<BR>id=" . $invoiceHistory->getInvoiceId() . "/revision=" . $invoiceHistory->getRevision() . "/action=" . $invoiceHistory->getAction();

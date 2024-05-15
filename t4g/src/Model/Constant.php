@@ -21,7 +21,7 @@ abstract class Constant {
   public const ACCESSKEY_CONFIRM_DELETE = "l";
   public const ACCESSKEY_CONFIRM_PASSWORD = "c";
   public const ACCESSKEY_CREATE = "c";
-  public const ACCESSKEY_CREATE_PDF = "p";
+  public const ACCESSKEY_VIEW_PDF = "p";
   public const ACCESSKEY_DATE = "d";
   public const ACCESSKEY_DELETE = "l";
   public const ACCESSKEY_DESCRIPTION = "i";
@@ -119,7 +119,6 @@ abstract class Constant {
   public const MODE_APPROVE = "approve";
   public const MODE_CONFIRM = "confirm";
   public const MODE_CREATE = "create";
-  public const MODE_CREATE_PDF = "createpdf";
   public const MODE_DELETE = "delete";
   public const MODE_EMAIL = "email";
   public const MODE_LOGIN = "login";
@@ -135,6 +134,7 @@ abstract class Constant {
   public const MODE_SEND_EMAIL = "sendEmail";
   public const MODE_SIGNUP = "signup";
   public const MODE_VIEW = "view";
+  public const MODE_VIEW_PDF = "viewpdf";
   public const NAME_ADMIN = "T4G Admin";
   public const NAME_TIME_ZONE = "America/New_York";
   public const PATH_HOME_LOCAL = "C:/Users/n082832/git/baton/t4g";
@@ -148,7 +148,6 @@ abstract class Constant {
   public const TEXT_CANCEL = "Cancel";
   public const TEXT_CONFIRM_DELETE = "Confirm delete";
   public const TEXT_CREATE = "Create";
-  public const TEXT_CREATE_PDF = "Create PDF";
   public const TEXT_DELETE = "Delete";
   public const TEXT_GO = "Go";
   public const TEXT_MAKE_PAYMENT = "Make payment";
@@ -163,6 +162,7 @@ abstract class Constant {
   public const TEXT_TRUE = "true";
   public const TEXT_UPDATE = "Update";
   public const TEXT_VIEW = "View";
+  public const TEXT_VIEW_PDF = "View PDF";
   public const TEXT_YES = "Yes";
   public const TYPE_INPUT_BUTTON = "button";
   public const TYPE_INPUT_CHECKBOX = "checkbox";

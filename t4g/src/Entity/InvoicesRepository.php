@@ -14,7 +14,7 @@ class InvoicesRepository extends BaseRepository {
 //                     ->getQuery()->getResult();
 //     }
 
-    public function getById(?int $invoiceId) {
+    public function getById(?int $invoiceId, ?int $memberId) {
         $qb = $this->createQueryBuilder("i")
                    ->addSelect("il, ip, m")
                    ->innerJoin("i.members", "m")
@@ -23,6 +23,10 @@ class InvoicesRepository extends BaseRepository {
         if (isset($invoiceId)) {
             $qb = $qb->where("i.invoiceId = :invoiceId")
                      ->setParameters(new ArrayCollection(array(new Parameter("invoiceId", $invoiceId))));
+        }
+        if (isset($memberId)) {
+            $qb = $qb->where("m.memberId = :memberId")
+                     ->setParameters(new ArrayCollection(array(new Parameter("memberId", $memberId))));
         }
         return $qb->getQuery()->getResult();
     }
