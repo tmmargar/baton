@@ -297,7 +297,7 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
             $invoicePrinter->changeLanguageTerm(term: "from", new: "Bill From");
             $invoicePrinter->changeLanguageTerm(term: "to", new: "Bill To");
             // small text to display in bottom left corder
-            $invoicePrinter->setFooternote(note: "Twirling for Grace");
+            $invoicePrinter->setFooternote(note: "Generated at " . DateTimeUtility::formatDisplayDateTime(value: new DateTime()));
             // name, destination: I => Display on browser, D => Force Download, F => local path save, S => return document path
             $invoicePrinter->render(name: "invoice_" . $invoices[0]->getInvoiceId() . "_" . date("mdyhis") . ".pdf", destination: "D");
         }
