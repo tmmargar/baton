@@ -6,22 +6,22 @@ use Doctrine\ORM\Query\Parameter;
 
 class StudentsRepository extends BaseRepository {
     public function getById(?int $studentId) {
-        $qb = $this->createQueryBuilder("s");
+        $qb = $this->createQueryBuilder(alias: "s");
         if (isset($studentId)) {
-            $qb = $qb->where("s.studentId = :studentId");
-            $qb->setParameters(new ArrayCollection(array(new Parameter("studentId", $studentId))));
+            $qb = $qb->where(predicates: "s.studentId = :studentId");
+            $qb->setParameters(parameters: new ArrayCollection(array(new Parameter("studentId", $studentId))));
         }
         $qb = $qb->addOrderBy("s.studentLastName, s.studentFirstName", "ASC");
         return $qb->getQuery()->getResult();
     }
 
     public function getByMemberId(int $memberId) {
-        $qb = $this->createQueryBuilder("s")
-                   ->innerJoin("s.memberStudents", "ms")
-                   ->innerJoin("ms.members", "m")
-                   ->where("m.memberId = :memberId")
-                   ->setParameters(new ArrayCollection(array(new Parameter("memberId", $memberId))))
-                   ->addOrderBy("s.studentLastName, s.studentFirstName", "ASC");
+        $qb = $this->createQueryBuilder(alias: "s")
+                   ->innerJoin(join: "s.memberStudents", alias: "ms")
+                   ->innerJoin(join: "ms.members", alias: "m")
+                   ->where(predicates: "m.memberId = :memberId")
+                   ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "memberId", value: $memberId))))
+                   ->addOrderBy(sort: "s.studentLastName, s.studentFirstName", order: "ASC");
         return $qb->getQuery()->getResult();
     }
 }

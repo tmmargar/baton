@@ -10,43 +10,43 @@ use PDO;
 
 class MembersRepository extends BaseRepository {
     public function getById(?int $memberId) {
-        $qb = $this->createQueryBuilder("m");
+        $qb = $this->createQueryBuilder(alias: "m");
         if (isset($memberId)) {
-            $qb = $qb->where("m.memberId = :memberId");
-            $qb->setParameters(new ArrayCollection(array(new Parameter("memberId", $memberId))));
+            $qb = $qb->where(predicates: "m.memberId = :memberId");
+            $qb->setParameters(new ArrayCollection(elements: array(new Parameter(name: "memberId", value: $memberId))));
         }
-        $qb = $qb->addOrderBy("m.memberLastName, m.memberFirstName", "ASC");
+        $qb = $qb->addOrderBy(sort: "m.memberLastName, m.memberFirstName", order: "ASC");
         return $qb->getQuery()->getResult();
     }
 
     public function getByUsername(string $username) {
-        return $this->createQueryBuilder("m")
-                    ->addSelect("ma, mr")
-                    ->leftJoin("m.memberApproval", "ma")
-                    ->leftJoin("m.memberRejection", "mr")
-                    ->where("m.memberUsername = :username")
-                    ->setParameters(new ArrayCollection(array(new Parameter("username", $username))))
+        return $this->createQueryBuilder(alias: "m")
+                    ->addSelect(select: "ma, mr")
+                    ->leftJoin(join: "m.memberApproval", alias: "ma")
+                    ->leftJoin(join: "m.memberRejection", alias: "mr")
+                    ->where(predicates: "m.memberUsername = :username")
+                    ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "username", value: $username))))
                     ->getQuery()->getResult();
     }
 
     public function getByEmail(string $email) {
-        return $this->createQueryBuilder("m")
-                    ->addSelect("ma, mr")
-                    ->leftJoin("m.memberApproval", "ma")
-                    ->leftJoin("m.memberRejection", "mr")
-                    ->where("m.memberEmail = :email")
-                    ->setParameters(new ArrayCollection(array(new Parameter("email", $email))))
+        return $this->createQueryBuilder(alias: "m")
+        ->addSelect(select: "ma, mr")
+                    ->leftJoin(join: "m.memberApproval", alias: "ma")
+                    ->leftJoin(join: "m.memberRejection", alias: "mr")
+                    ->where(predicates: "m.memberEmail = :email")
+                    ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "email", value: $email))))
                     ->getQuery()->getResult();
     }
 
     public function getByUsernameAndEmail(string $username, string $email) {
-        return $this->createQueryBuilder("m")
-                    ->addSelect("ma, mr")
-                    ->leftJoin("m.memberApproval", "ma")
-                    ->leftJoin("m.memberRejection", "mr")
-                    ->where("m.memberUsername = :username")
+        return $this->createQueryBuilder(alias: "m")
+        ->addSelect(select: "ma, mr")
+                    ->leftJoin(join: "m.memberApproval", alias: "ma")
+                    ->leftJoin(join: "m.memberRejection", alias: "mr")
+                    ->where(predicates: "m.memberUsername = :username")
                     ->andWhere("m.memberEmail = :email")
-                    ->setParameters(new ArrayCollection(array(new Parameter("username", $username), new Parameter("email", $email))))
+                    ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "username", value: $username), new Parameter(name: "email", value: $email))))
                     ->getQuery()->getResult();
     }
 
@@ -60,7 +60,7 @@ class MembersRepository extends BaseRepository {
         //                     ->where("m.memberApprovalDate IS NULL")
         //                     ->andWhere("m.memberRejectionDate IS NULL")
         //                     ->getQuery()->getResult();
-        $statement = $this->getEntityManager()->getConnection()->prepare($sql);
+        $statement = $this->getEntityManager()->getConnection()->prepare(sql: $sql);
         if ($indexed) {
             return $statement->executeQuery()->fetchAllNumeric();
         } else {
@@ -74,11 +74,11 @@ class MembersRepository extends BaseRepository {
             $hash = NULL;
             $expiresFormatted = NULL;
         } else {
-            $selector = bin2hex(random_bytes(length: 8));
+            $selector = bin2hex(string: random_bytes(length: 8));
             $token = random_bytes(length: 32);
             $hash = hash(algo: 'sha256', data: $token);
             $expires = new DateTime();
-            $expires->add(new DateInterval("P1D")); // 1 day
+            $expires->add(new DateInterval(duration: "P1D")); // 1 day
             $expiresFormatted = DateTimeUtility::formatSecondsSinceEpoch(value: $expires);
         }
         $sql =
@@ -90,13 +90,13 @@ class MembersRepository extends BaseRepository {
         $params = array();
         $paramTypes = array();
         if (isset($password)) {
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            array_push($params, $hash);
-            array_push($paramTypes, PDO::PARAM_STR);
+            $hash = password_hash(password: $password, algo: PASSWORD_DEFAULT);
+            array_push(array: $params, values: $hash);
+            array_push(array: $paramTypes, values: PDO::PARAM_STR);
         }
         array_push($params, $selector, $updateToken ? $hash : NULL, $expiresFormatted, $username, $email);
         array_push($paramTypes, PDO::PARAM_STR, PDO::PARAM_STR, PDO::PARAM_STR, PDO::PARAM_STR, PDO::PARAM_STR);
-        $recordCount = $this->getEntityManager()->getConnection()->executeStatement($sql, $params, $paramTypes);
+        $recordCount = $this->getEntityManager()->getConnection()->executeStatement(sql: $sql, params: $params, types: $paramTypes);
         if (isset($password)) {
             $returnValue = $recordCount;
         } else {

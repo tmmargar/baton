@@ -20,12 +20,12 @@ class EventOrganizationsRepository extends BaseRepository {
 //                     ->getQuery()->getResult();
 //     }
     public function getById(?int $eventId) {
-        return $this->createQueryBuilder("eo")
-                    ->addSelect("eo, e, o")
-                    ->inerJoin("eo.events", "e")
-                    ->inerJoin("eo.organizations", "o")
-                    ->where("eo.eventId = :eventId")
-                    ->setParameters(new ArrayCollection(array(new Parameter("eventId", $eventId))))
+        return $this->createQueryBuilder(alias: "eo")
+                    ->addSelect(select: "eo, e, o")
+                    ->inerJoin(join: "eo.events", alias: "e")
+                    ->inerJoin(join: "eo.organizations", alias: "o")
+                    ->where(predicates: "eo.eventId = :eventId")
+                    ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "eventId", value: $eventId))))
                     ->getQuery()->getResult();
     }
 

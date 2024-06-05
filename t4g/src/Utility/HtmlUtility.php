@@ -41,22 +41,26 @@ abstract class HtmlUtility {
   public static function parseLink(string $value): array {
       //<a href="http://www.google.com/" target="">text</a>
       $values = explode(separator: " ", string: $value);
-      //[0] is <a
-      //[1] is href="http://www.google.com/"
-      //[2] is target="_blank">text</a>
-      $vals = explode(separator: "=", string: $values[1]);
-      if (1 < count($vals)) {
-          //[0] is href
-          //[1] is "http://www.google.com/"
-          $url = substr(string: $vals[1], offset: 1, length: strlen($vals[1]) - 2);
-          $vals2 = explode(separator: ">", string: $values[2]);
-          //[0] is target="_blank"
-          //[1] is text</a>
-          $values2 = explode(separator: "<", string: $vals2[1]);
-          //[0] is text
-          //[1] is /a>
-          $name = $values2[0];
-          $returnValue = array($name, $url);
+      if (1 < count($values)) {
+          //[0] is <a
+          //[1] is href="http://www.google.com/"
+          //[2] is target="_blank">text</a>
+          $vals = explode(separator: "=", string: $values[1]);
+          if (1 < count($vals)) {
+              //[0] is href
+              //[1] is "http://www.google.com/"
+              $url = substr(string: $vals[1], offset: 1, length: strlen($vals[1]) - 2);
+              $vals2 = explode(separator: ">", string: $values[2]);
+              //[0] is target="_blank"
+              //[1] is text</a>
+              $values2 = explode(separator: "<", string: $vals2[1]);
+              //[0] is text
+              //[1] is /a>
+              $name = $values2[0];
+              $returnValue = array($name, $url);
+          } else {
+              $returnValue = array($value);
+          }
       } else {
           $returnValue = array($value);
       }

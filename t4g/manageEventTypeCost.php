@@ -29,7 +29,7 @@ $errors = NULL;
 $outputAdditional = "";
 $now = new DateTime();
 if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
-    $idValues = NULL == $ids ? array(NULL, NULL, NULL) : explode("::", $ids);
+    $idValues = NULL == $ids ? array(NULL, NULL, NULL) : explode(Constant::DELIMITER_VALUE, $ids);
     $etFind = NULL == $ids ? NULL : $entityManager->find(Constant::ENTITY_EVENT_TYPES, $idValues[0]);
     $eventTypeCosts = Constant::MODE_CREATE == $mode ? array() : $entityManager->getRepository(Constant::ENTITY_EVENT_TYPE_COSTS)->getById(eventType: $etFind, eventTypeTimeLength: (int) $idValues[1], eventTypeStudentCount: (int) $idValues[2]);
     $output .= " <div class=\"buttons center\">\n";
@@ -45,7 +45,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
         $ctr = 0;
         $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
         foreach ($ary as $idTemp) {
-            $idTempValues = explode("::", $idTemp);
+            $idTempValues = explode(Constant::DELIMITER_VALUE, $idTemp);
             $id = $idTempValues[0];
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\">" . EVENT_TYPE_ID_FIELD_LABEL . ": </div>";
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . ($id == "" ? "NEW" : $id) . "</div>";
@@ -92,7 +92,7 @@ if (Constant::MODE_CREATE == $mode || Constant::MODE_MODIFY == $mode) {
 } elseif (Constant::MODE_SAVE_CREATE == $mode || Constant::MODE_SAVE_MODIFY == $mode) {
     $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
     foreach ($ary as $idTemp) {
-        $idTempValues = explode("::", $idTemp);
+        $idTempValues = explode(Constant::DELIMITER_VALUE, $idTemp);
         $id = $idTempValues[0];
         $eventTypeCost = (isset($_POST[EVENT_TYPE_COST_FIELD_NAME . "_" . $id])) ? $_POST[EVENT_TYPE_COST_FIELD_NAME . "_" . $id] : 0;
         $eventTypeId = Constant::MODE_SAVE_CREATE == $mode ? $_POST[EVENT_TYPE_FIELD_NAME . "_" . $id] : $id;
@@ -139,7 +139,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         if ($ids != DEFAULT_VALUE_BLANK) {
             $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
 //             foreach ($ary as $idTemp) {
-            $idTempValues = explode("::", $ary[0]);
+            $idTempValues = explode(Constant::DELIMITER_VALUE, $ary[0]);
                 $id = $idTempValues[0];
 //             }
             $eventTypeId = $id;
@@ -184,7 +184,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
     $hiddenSelectedRows = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: SELECTED_ROWS_FIELD_NAME, maxLength: NULL, name: SELECTED_ROWS_FIELD_NAME, onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: NULL, suffix: NULL, type: FormControl::TYPE_INPUT_HIDDEN, value: $ids, wrap: NULL);
     $output .= $hiddenSelectedRows->getHtml();
     $id = ("" == $ids) ? NULL : (int) $ids;
-    $idValues = NULL == $ids ? array(NULL, NULL, NULL) : explode("::", $ids);
+    $idValues = NULL == $ids ? array(NULL, NULL, NULL) : explode(Constant::DELIMITER_VALUE, $ids);
     $etFind = NULL == $ids ? NULL : $entityManager->find(Constant::ENTITY_EVENT_TYPES, $idValues[0]);
     $results = $entityManager->getRepository(Constant::ENTITY_EVENT_TYPE_COSTS)->getById(eventType: $etFind, eventTypeTimeLength: (int) $idValues[1], eventTypeStudentCount: (int) $idValues[2]);
     $output .= "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"display\" id=\"" . Constant::ID_TABLE_DATA . "\" style=\"width: 100%;\">\n";
@@ -204,7 +204,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $output .= "   <td>" . $eventTypeCost->getEventTypeTimeLength() . "</td>\n";
         $output .= "   <td>" . $eventTypeCost->getEventTypeStudentCount() . "</td>\n";
         $output .= "   <td class=\"positive\">$" . $eventTypeCost->getEventTypeCost() . "</td>\n";
-        $output .= "   <td>" . $eventTypeCost->getEventTypes()->getEventTypeId() . "::" . $eventTypeCost->getEventTypeTimeLength() . "</td>\n";
+        $output .= "   <td>" . $eventTypeCost->getEventTypes()->getEventTypeId() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeTimeLength() . "</td>\n";
         $output .= "  </tr>\n";
     }
     $output .= " </tbody>\n";

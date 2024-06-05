@@ -5,21 +5,8 @@ body {
   font-weight: 300;
 }
 html {
-  overflow-y: hidden !important;
-  background-image: url('../images/background.jpg'),
-    linear-gradient(
-      180deg,
-      rgba(211, 214, 223, 1) 0%,
-      rgba(206, 208, 220, 1) 38%,
-      rgba(179, 183, 201, 1) 67%,
-      rgba(123, 132, 175, 1) 100%
-    );
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: #3333ff;
+  color: #ffffff;
 }
 p.subtitle {
   padding-top: 1rem;

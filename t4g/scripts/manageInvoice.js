@@ -22,11 +22,15 @@ export const inputLocal = {
             obj.name = nameVal[0] + "_" + nameVal[1] + "_" + (parseInt(nameVal[2]) + 1);
             //obj.checked = false;
             if (obj.type != "textarea") {
-                if (obj.id.indexOf("invoiceLineAmount_") == -1) {
+                if (obj.id.indexOf("invoiceLineEventDate_") != -1) {
+                    obj.options.length = 0;
+                } else if (obj.id.indexOf("invoiceLineAmount_") == -1) {
                     obj.value = parseInt(obj.value) + 1;
                 } else {
                     obj.value = 0;
                 }
+            } else {
+                obj.value = "";
             }
             obj.dataset.previousValueValidation = obj.value;
             if (obj.type == "select-one") {
@@ -66,12 +70,12 @@ export const inputLocal = {
   eventTypeChange : function(objId) {
       const values = objId.split("_");
       const obj = document.querySelector("#invoiceLineEventType_" + values[1] + "_" + values[2]);
-      document.querySelector("#invoiceLineAmount_" + values[1] + "_" + values[2]).value = obj.value.split("::")[1];
+      document.querySelector("#invoiceLineAmount_" + values[1] + "_" + values[2]).value = obj.value.split("::")[3];
       inputLocal.calculateTotal("invoiceLineAmount_" + values[1] + "_" + values[2]);
   },
   initializeDataTable : function() {
       //, { "searchable": false, "visible": false }
-    dataTable.initialize({tableId: "dataTbl", aryColumns: [{ "width": "5%" }, { "width": "20%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "15%" }], aryOrder: [[0, "asc"]], aryRowGroup: false, autoWidth: false, paging: false, scrollCollapse: true, scrollResize: true, scrollY: "400px", searching: true });
+    dataTable.initialize({tableId: "dataTbl", aryColumns: [{ "width": "5%" }, { "width": "20%" }, {"render" : function (data, type, row, meta) { return display.formatActivePreviousDay({value: data, meta: meta, tableId: "dataTbl"}); }, "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "10%" }, { "width": "15%" }], aryOrder: [[0, "asc"]], aryRowGroup: false, autoWidth: false, paging: false, scrollCollapse: true, scrollResize: true, scrollY: "400px", searching: true });
   },
   removeRow : function(objId) {
     document.querySelector("#" + objId + " tr:nth-last-child(2)").remove();
@@ -114,7 +118,7 @@ export const inputLocal = {
     if (lines) {
         const lineAmounts = document.querySelectorAll("[id^='invoiceLineAmount_']");
         for (let lineAmount of lineAmounts) {
-            lineAmount.min = 0;
+            lineAmount.min = 1;
             lineAmount.max = 9999;
         }
     }
@@ -128,7 +132,7 @@ export const inputLocal = {
       member[0].setCustomValidity(member[0].value == "" ? "You must select a member" : "");
       date[0].setCustomValidity(date[0].validity.valueMissing ? "You must enter a valid date" : date[0].validity.rangeOverflow ? "You must enter a date before the due date" : "");
       dueDate[0].setCustomValidity(dueDate[0].validity.valueMissing ? "You must enter a valid due date" : dueDate[0].validity.rangeUnderflow ? "You must enter a due date after the date" : "");
-      amount[0].setCustomValidity(amount[0].validity.valueMissing ? "You must enter a valid amount" : "");
+      amount[0].setCustomValidity(amount[0].validity.valueMissing ? "You must enter a valid amount": amount[0].validity.rangeUnderflow ? "You must enter an amount >= " + amount[0].min : amount[0].validity.rangeOverflow ? "You must enter an amount <= " + amount[0].max : "");
     }
     const lines = document.querySelector("#inputs");
     if (lines) {
@@ -140,11 +144,19 @@ export const inputLocal = {
             }
             const eventTypes = document.querySelectorAll("[id^='invoiceLineEventType_']");
             for (let eventType of eventTypes) {
-                eventType.setCustomValidity(eventType.value == "" ? "You must select a event type" : "");
+                eventType.setCustomValidity(eventType.value == "" ? "You must select an event type" : "");
+            }
+            const eventTypeStudentCounts = document.querySelectorAll("[id^='invoiceLineEventTypeStudentCount_']");
+            for (let eventTypeStudentCount of eventTypeStudentCounts) {
+                eventTypeStudentCount.setCustomValidity(eventTypeStudentCount.value == "" ? "You must select a student couint" : "");
+            }
+            const eventDates = document.querySelectorAll("[id^='invoiceLineEventDate_']");
+            for (let eventDate of eventDates) {
+                eventDate.setCustomValidity(eventDate.value == "" ? "You must select an event date" : "");
             }
             const amounts = document.querySelectorAll("[id^='invoiceLineAmount_']");
             for (let amount of amounts) {
-                amount.setCustomValidity(amount.validity.valueMissing ? "You must enter a valid amount" : "");
+                amount.setCustomValidity(amount.validity.valueMissing ? "You must enter a valid amount" : amount.validity.rangeUnderflow ? "You must enter an amount >= " + amount.min : amount.validity.rangeOverflow ? "You must enter an amount <= " + amount.max : "");
             }
         }
     }
@@ -164,8 +176,10 @@ if (document.readyState === "complete" || (document.readyState !== "loading" && 
 }
 document.querySelectorAll("#dataTbl tbody tr")?.forEach(row => row.addEventListener("click", (event) => {
     if (event.target.localName != "a") {
-        const selected = row.classList.contains("selected");
-        document.querySelectorAll("[id^='modify']")?.forEach(btn => { btn.disabled = selected; });
+        const selected = row.classList.contains("selected") || row.classList.contains("dtrg-group");
+        if (!row.classList.contains("inactive")) {
+            document.querySelectorAll("[id^='modify']")?.forEach(btn => { btn.disabled = selected; });
+        }
         //document.querySelectorAll("[id^='delete']")?.forEach(btn => { btn.disabled = selected; });
         document.querySelectorAll("[id^='makePayment']")?.forEach(btn => { btn.disabled = selected; });
         document.querySelectorAll("[id^='viewPDF']")?.forEach(btn => { btn.disabled = selected; });
@@ -182,6 +196,7 @@ document.addEventListener("change", (event) => {
         document.querySelector("#frmManage").submit();
     } else if (event.target && event.target.id.includes("invoiceLineEventType")) {
         inputLocal.eventTypeChange(event.target.id);
+        document.querySelector("#frmManage").submit();
     }
 });
 document.addEventListener("click", (event) => {

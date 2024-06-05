@@ -15,18 +15,18 @@ class InvoicesRepository extends BaseRepository {
 //     }
 
     public function getById(?int $invoiceId, ?int $memberId) {
-        $qb = $this->createQueryBuilder("i")
-                   ->addSelect("il, ip, m")
-                   ->innerJoin("i.members", "m")
-                   ->innerJoin("i.invoiceLines", "il")
-                   ->leftJoin("i.invoicePayments", "ip");
+        $qb = $this->createQueryBuilder(alias: "i")
+                   ->addSelect(select: "il, ip, m")
+                   ->innerJoin(join: "i.members", alias: "m")
+                   ->innerJoin(join: "i.invoiceLines", alias: "il")
+                   ->leftJoin(join: "i.invoicePayments", alias: "ip");
         if (isset($invoiceId)) {
-            $qb = $qb->where("i.invoiceId = :invoiceId")
-                     ->setParameters(new ArrayCollection(array(new Parameter("invoiceId", $invoiceId))));
+            $qb = $qb->where(predicates: "i.invoiceId = :invoiceId")
+            ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "invoiceId", value: $invoiceId))));
         }
         if (isset($memberId)) {
             $qb = $qb->where("m.memberId = :memberId")
-                     ->setParameters(new ArrayCollection(array(new Parameter("memberId", $memberId))));
+                     ->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "memberId", value: $memberId))));
         }
         return $qb->getQuery()->getResult();
     }

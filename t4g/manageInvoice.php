@@ -30,8 +30,14 @@ define("INVOICE_DUE_DATE_FIELD_NAME", "invoiceDueDate");
 define("INVOICE_ID_FIELD_LABEL", "Id");
 define("INVOICE_LINE_AMOUNT_FIELD_NAME", "invoiceLineAmount");
 define("INVOICE_LINE_COMMENT_FIELD_NAME", "invoiceLineComment");
+define("INVOICE_LINE_EVENT_DATE_FIELD_LABEL", "Event date");
+define("INVOICE_LINE_EVENT_DATE_FIELD_NAME", "invoiceLineEventDate");
 define("INVOICE_LINE_EVENT_TYPE_FIELD_LABEL", "Event type");
 define("INVOICE_LINE_EVENT_TYPE_FIELD_NAME", "invoiceLineEventType");
+define("INVOICE_LINE_STUDENT_COUNT_FIELD_LABEL", "Student Count");
+define("INVOICE_LINE_STUDENT_COUNT_FIELD_NAME", "invoiceLineStudentCount");
+define("INVOICE_LINE_TIME_LENGTH_FIELD_LABEL", "Time Length");
+define("INVOICE_LINE_TIME_LENGTH_FIELD_NAME", "invoiceLineTimeLength");
 define("INVOICE_LINE_ID_FIELD_LABEL", "Line Id");
 define("INVOICE_LINE_ID_FIELD_NAME", "invoiceLineId");
 define("INVOICE_LINE_STUDENT_FIELD_LABEL", "Student");
@@ -95,22 +101,76 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
             $textBoxDueDate = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_DUE_DATE, autoComplete: NULL, autoFocus: false, checked: NULL, class: array("timePicker"), cols: NULL, disabled: false, id: INVOICE_DUE_DATE_FIELD_NAME . "_" . $id, maxLength: 30, name: INVOICE_DUE_DATE_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 20, suffix: NULL, type: FormControl::TYPE_INPUT_DATE_TIME, value: ((0 < count($invoices)) ? DateTimeUtility::formatDatabaseDateTime(value: $invoices[0]->getInvoiceDueDate()) : DateTimeUtility::formatDatabaseDateTime(value: $dueDate)), wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxDueDate->getHtml() . "</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . INVOICE_AMOUNT_FIELD_NAME . "_" . $id . "\">" . INVOICE_AMOUNT_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
-            $textBoxAmount = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: true, checked: NULL, class: NULL, cols: NULL, disabled: false, id: INVOICE_AMOUNT_FIELD_NAME . "_" . $id, maxLength: 4, name: INVOICE_AMOUNT_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: true, required: true, rows: NULL, size: 4, suffix: NULL, type: FormControl::TYPE_INPUT_NUMBER, value: (int) ((0 < count($invoices)) ? $invoices[0]->getInvoiceAmount() : 0), wrap: NULL);
+            $textBoxAmount = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: true, checked: NULL, class: NULL, cols: NULL, disabled: false, id: INVOICE_AMOUNT_FIELD_NAME . "_" . $id, maxLength: 4, name: INVOICE_AMOUNT_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: true, required: true, rows: NULL, size: 4, suffix: NULL, type: FormControl::TYPE_INPUT_NUMBER, value: (int) (!empty($_POST[INVOICE_AMOUNT_FIELD_NAME . "_" . $id]) ? $_POST[INVOICE_AMOUNT_FIELD_NAME . "_" . $id] : (0 < count($invoices) ? $invoices[0]->getInvoiceAmount() : 0)), wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxAmount->getHtml() . "</div>";
             $output .= " <div class=\"responsive-cell responsive-cell-label responsive-cell--head\"><label for=\"" . INVOICE_COMMENT_FIELD_NAME . "_" . $id . "\">" . INVOICE_COMMENT_FIELD_LABEL . ($id != "" ? " " . $id : "") . ": </label></div>";
-            $textBoxComment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_COMMENT, autoComplete: NULL, autoFocus: true, checked: NULL, class: NULL, cols: 30, disabled: false, id: INVOICE_COMMENT_FIELD_NAME . "_" . $id, maxLength: 200, name: INVOICE_COMMENT_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: false, rows: 6, size: 100, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: ((0 < count($invoices)) ? $invoices[0]->getInvoiceComment() : ""), wrap: NULL);
+            $textBoxComment = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_COMMENT, autoComplete: NULL, autoFocus: true, checked: NULL, class: NULL, cols: 30, disabled: false, id: INVOICE_COMMENT_FIELD_NAME . "_" . $id, maxLength: 200, name: INVOICE_COMMENT_FIELD_NAME . "_" . $id, onClick: NULL, placeholder: NULL, readOnly: false, required: false, rows: 6, size: 100, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTAREA, value: ((0 < count($invoices)) ? $invoices[0]->getInvoiceComment() : (!empty($_POST[INVOICE_COMMENT_FIELD_NAME . "_" . $id]) ? $_POST[INVOICE_COMMENT_FIELD_NAME . "_" . $id] : "")), wrap: NULL);
             $output .= " <div class=\"responsive-cell responsive-cell-value\">" . $textBoxComment->getHtml() . "</div>";
+            $maxCounter = 0;
             if (count($invoices) == 0) {
-                $il = new InvoiceLines();
-                $il->initialize();
+                $found = false;
+                $maxCounter = 1;
                 $collection = new ArrayCollection();
-                $collection->add($il);
-                $invoices[0] = new Invoices();
-                $invoices[0]->setInvoiceId(0);
+                while (!$found) {
+                    if (empty($_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $maxCounter])) {
+                        if (1 == $maxCounter) {
+                            $il = new InvoiceLines();
+                            $il->initialize();
+                        }
+                        $found = true;
+                        $maxCounter--;
+                    } else {
+                        $il = new InvoiceLines();
+                        $il->initialize();
+                        $invoiceLineEventTypeIdTempValue = !empty($_POST[INVOICE_LINE_STUDENT_COUNT_FIELD_NAME . "_" . $id . "_" . $maxCounter]) ? $_POST[INVOICE_LINE_STUDENT_COUNT_FIELD_NAME . "_" . $id . "_" . $maxCounter] : "NULL::0::0::NULL";
+                        $invoiceLineEventTypeIdTemp = explode(separator: Constant::DELIMITER_VALUE, string: $invoiceLineEventTypeIdTempValue);
+                        $il->setEventTypeStudentCount((int) $invoiceLineEventTypeIdTemp[2]);
+                        $il->setEventTypeTimeLength((int) $invoiceLineEventTypeIdTemp[1]);
+                        $il->setInvoiceLineAmount((int) $_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $maxCounter]);
+                        $il->setInvoiceLineComment($_POST[INVOICE_LINE_COMMENT_FIELD_NAME . "_" . $id . "_" . $maxCounter]);
+                        $il->setInvoiceLineEventDate(new DateTime(datetime: $_POST[INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $maxCounter]));
+                        $il->setInvoiceLineId("0-" . $maxCounter);
+                        $maxCounter++;
+                    }
+                    $collection->add($il);
+                }
+                $invoices[$ctr] = new Invoices();
+                $invoices[$ctr]->setInvoiceId(0);
                 $members = new Members();
                 $members->setMemberId(0);
-                $invoices[0]->setMembers($members);
-                $invoices[0]->setInvoiceLines($collection);
+                $invoices[$ctr]->setMembers($members);
+                $invoices[$ctr]->setInvoiceLines($collection);
+            }
+            if (0 == $maxCounter) {
+                $maxCounter = count($invoices[$ctr]->getInvoiceLines());
+            }
+            $found = false;
+            $maxCounter2 = 1;
+            while (!$found) {
+                if (empty($_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $maxCounter2])) {
+                    $found = true;
+                } else {
+                    $maxCounter2++;
+                }
+            }
+            $maxCounter2--;
+            if ($maxCounter2 > $maxCounter) {
+                while ($maxCounter2 > $maxCounter) {
+                    $maxCounter++;
+                    $il = new InvoiceLines();
+                    $il->initialize();
+                    $invoiceLineEventTypeIdTempValue = !empty($_POST[INVOICE_LINE_STUDENT_COUNT_FIELD_NAME . "_" . $id . "_" . $maxCounter]) ? $_POST[INVOICE_LINE_STUDENT_COUNT_FIELD_NAME . "_" . $id . "_" . $maxCounter] : "NULL::0::0::NULL";
+                    $invoiceLineEventTypeIdTemp = explode(separator: Constant::DELIMITER_VALUE, string: $invoiceLineEventTypeIdTempValue);
+                    $il->setEventTypeStudentCount((int) $invoiceLineEventTypeIdTemp[2]);
+                    $il->setEventTypeTimeLength((int) $invoiceLineEventTypeIdTemp[1]);
+                    $il->setInvoiceLineAmount((int) $_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $maxCounter]);
+                    $il->setInvoiceLineComment($_POST[INVOICE_LINE_COMMENT_FIELD_NAME . "_" . $id . "_" . $maxCounter]);
+                    if (!empty($_POST[INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $maxCounter])) {
+                        $il->setInvoiceLineEventDate(new DateTime(datetime: $_POST[INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $maxCounter]));
+                    }
+                    $il->setInvoiceLineId("0-" . $maxCounter);
+                    $invoices[$ctr]->getInvoiceLines()->add($il);
+                }
             }
             $amountTotal = 0;
             $ctr2 = 1;
@@ -120,13 +180,15 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
             $output .= "   <tr>\n";
             $output .= "    <th>" . INVOICE_LINE_ID_FIELD_LABEL . "</th>\n";
             $output .= "    <th>" . INVOICE_LINE_STUDENT_FIELD_LABEL . "</th>\n";
-            $output .= "    <th>" . INVOICE_LINE_EVENT_TYPE_FIELD_LABEL . "</th>\n";
+            $output .= "    <th>" . INVOICE_LINE_EVENT_TYPE_FIELD_LABEL . " - " . INVOICE_LINE_TIME_LENGTH_FIELD_LABEL . " - " . INVOICE_LINE_STUDENT_COUNT_FIELD_LABEL . "</th>\n";
+            $output .= "    <th>" . INVOICE_LINE_EVENT_DATE_FIELD_LABEL . "</th>\n";
             $output .= "    <th>" . INVOICE_AMOUNT_FIELD_LABEL . "</th>\n";
             $output .= "    <th>" . INVOICE_COMMENT_FIELD_LABEL . "</th>\n";
             $output .= "   </tr>\n";
             $output .= "  </thead>\n";
             $output .= "  <tbody>\n";
-            foreach ($invoices[$ctr]->getInvoiceLines() as $invoiceLines) {
+            for ($lineCounter = 0; $lineCounter < $maxCounter; $lineCounter++) {
+                $invoiceLines = $invoices[$ctr]->getInvoiceLines()[$lineCounter];
                 // amount, student, comment, event type
                 $output .= "   <tr>\n";
                 $output .= "    <td>\n";
@@ -137,14 +199,15 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
                 $output .= "    <td>\n";
                 $students = $entityManager->getRepository(Constant::ENTITY_STUDENTS)->getByMemberId(memberId: (int) $invoiceMemberIdTemp);
                 if (NULL !== $students) {
+                    $invoiceLineStudentTemp = !empty($_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctr2]) ? $_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctr2] : (0 < count($invoices) ? $invoiceLines->getStudents()->getStudentId() : "");
                     $selectMember = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_STUDENT, class: NULL, disabled: false, id: INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctr2, multiple: false, name: INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctr2, onClick: NULL, readOnly: false, size: 1, suffix: NULL, value: NULL);
                     $output .= $selectMember->getHtml();
                     if (1 < count($students)) {
-                        $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: 0 < count($invoices) ? $invoiceLines->getStudents()->getStudentId() : "", suffix: NULL, text: Constant::TEXT_NONE, value: DEFAULT_VALUE_BLANK);
+                        $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: $invoiceLineStudentTemp, suffix: NULL, text: Constant::TEXT_NONE, value: DEFAULT_VALUE_BLANK);
                         $output .= $option->getHtml();
                     }
                     foreach ($students as $student) {
-                        $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: 0 < count($invoices) ? $invoiceLines->getStudents()->getStudentId() : "", suffix: NULL, text: $student->getStudentName(), value: $student->getStudentId());
+                        $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: $invoiceLineStudentTemp, suffix: NULL, text: $student->getStudentName(), value: $student->getStudentId());
                         $output .= $option->getHtml();
                     }
                     $output .= "     </select>\n";
@@ -153,13 +216,27 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
                 $output .= "    <td>\n";
                 $eventTypes = $entityManager->getRepository(Constant::ENTITY_EVENT_TYPES)->getById(eventTypeId: NULL);
                 if (NULL !== $eventTypes) {
+                    $invoiceLineEventTypeIdTempValue = !empty($_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctr2]) ? $_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctr2] : (0 < count($invoices) ? (string) $invoiceLines->getEventTypes()->getEventTypeId() . Constant::DELIMITER_VALUE . $invoiceLines->getEventTypeTimeLength() . Constant::DELIMITER_VALUE . $invoiceLines->getEventTypeStudentCount() . Constant::DELIMITER_VALUE . $invoiceLines->getInvoiceLineAmount() : "");
+                    if ($invoiceLineEventTypeIdTempValue == "") {
+                        $invoiceLineEventTypeIdTempValue = "NULL::NULL:NULL:NULL";
+                        $invoiceLineEventTypeIdTemp = array(NULL,NULL,NULL,NULL);
+                    } else {
+                        $invoiceLineEventTypeIdTemp = explode(separator: Constant::DELIMITER_VALUE, string: $invoiceLineEventTypeIdTempValue);
+                        // event type id, time length, student count, amount
+                        $invoiceLineEventTypeIdTemp[0] = (int) $invoiceLineEventTypeIdTemp[0];
+                        $invoiceLineEventTypeIdTemp[1] = (int) $invoiceLineEventTypeIdTemp[1];
+                        $invoiceLineEventTypeIdTemp[2] = (int) $invoiceLineEventTypeIdTemp[2];
+                    }
                     $selectEventType = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_EVENT_TYPE, class: NULL, disabled: false, id: INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctr2, multiple: false, name: INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctr2, onClick: NULL, readOnly: false, size: 1, suffix: NULL, value: NULL);
                     $output .= $selectEventType->getHtml();
                     $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: 0 < count($invoices) ? $invoiceLines->getStudents()->getStudentId() : "", suffix: NULL, text: Constant::TEXT_NONE, value: DEFAULT_VALUE_BLANK);
                     $output .= $option->getHtml();
                     foreach ($eventTypes as $eventType) {
                         foreach ($eventType->getEventTypeCosts() as $eventTypeCost) {
-                            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: 0 < count($invoices) ? $invoiceLines->getEventTypes()->getEventTypeId() . "::" . $eventTypeCost->getEventTypeCost() : "", suffix: NULL, text: $eventType->getEventTypeName() . " (" . $eventTypeCost->getEventTypeStudentCount() . " student(s))", value: $eventType->getEventTypeId() . "::" . $eventTypeCost->getEventTypeCost());
+                            if (count(array_keys(array: $invoiceLineEventTypeIdTemp)) == 1) {
+                                $invoiceLineEventTypeIdTemp[3] = $eventTypeCost->getEventTypeCost();
+                            }
+                            $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: !empty($invoiceLineEventTypeIdTemp) ? $invoiceLineEventTypeIdTemp[0] . Constant::DELIMITER_VALUE . $invoiceLineEventTypeIdTemp[1] . Constant::DELIMITER_VALUE . $invoiceLineEventTypeIdTemp[2] . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeCost() : (0 < count($invoices) ? $eventType->getEventTypeId() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeTimeLength() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeStudentCount() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeCost() : ""), suffix: NULL, text: $eventType->getEventTypeName() . " - " . $eventTypeCost->getEventTypeTimeLength() . " minutes - " . $eventTypeCost->getEventTypeStudentCount() . " student(s))", value: $eventType->getEventTypeId() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeTimeLength() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeStudentCount() . Constant::DELIMITER_VALUE . $eventTypeCost->getEventTypeCost());
                             $output .= $option->getHtml();
                         }
                     }
@@ -167,7 +244,23 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
                 }
                 $output .= "    </td>\n";
                 $output .= "    <td>\n";
-                $textAmount = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_AMOUNT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctr2, maxLength: 2, name: INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctr2, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 2, suffix: NULL, type: FormControl::TYPE_INPUT_NUMBER, value: (string) ((count($invoices) > 0) ? $invoiceLines->getInvoiceLineAmount() : ""), wrap: NULL);
+                $events = $entityManager->getRepository(Constant::ENTITY_EVENTS)->getByDate(eventDate: new DateTime(), eventTypeId: 0 < count($invoices) ? $invoiceLineEventTypeIdTemp[0] : NULL, timeLength: 0 < count($invoices) ? $invoiceLineEventTypeIdTemp[1] : NULL, studentCount: 0 < count($invoices) ? $invoiceLineEventTypeIdTemp[2] : NULL);
+                if (NULL !== $events) {
+                    $invoiceLineEventDateTempValue = !empty($_POST[INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $ctr2]) ? $_POST[INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $ctr2] : (0 < count($invoices) ? DateTimeUtility::formatDisplayDateTime(value: $invoiceLines->getInvoiceLineEventDate()) : "");
+                    $selectEvent = new FormSelect(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_EVENT, class: NULL, disabled: false, id: INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $ctr2, multiple: false, name: INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $ctr2, onClick: NULL, readOnly: false, size: 1, suffix: NULL, value: NULL);
+                    $output .= $selectEvent->getHtml();
+                    $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: !empty($invoiceLineEventDateTempValue) ? $invoiceLineEventDateTempValue : (0 < count($invoices) ? DateTimeUtility::formatDisplayDateTime(value: $invoiceLines->getInvoiceLineEventDate()) : ""), suffix: NULL, text: Constant::TEXT_NONE, value: DEFAULT_VALUE_BLANK);
+                    $output .= $option->getHtml();
+                    foreach ($events as $event) {
+                        $option = new FormOption(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), class: NULL, disabled: false, id: NULL, name: NULL, selectedValue: !empty($invoiceLineEventDateTempValue) ? $invoiceLineEventDateTempValue : (0 < count($invoices) ? DateTimeUtility::formatDisplayDateTime(value: $invoiceLines->getInvoiceLineEventDate()) : ""), suffix: NULL, text: DateTimeUtility::formatDisplayDateTime(value: $event->getEventStartDate()), value: DateTimeUtility::formatDisplayDateTime(value: $event->getEventStartDate()));
+                        $output .= $option->getHtml();
+                    }
+                    $output .= "     </select>\n";
+                }
+                $output .= "    </td>\n";
+                $output .= "    <td>\n";
+                $invoiceLineAmountTemp = isset($_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctr2]) ? $_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctr2] : (0 < count($invoices) ? (string) $invoiceLines->getInvoiceLineAmount() : "");
+                $textAmount = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: Constant::ACCESSKEY_AMOUNT, autoComplete: NULL, autoFocus: false, checked: NULL, class: NULL, cols: NULL, disabled: false, id: INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctr2, maxLength: 2, name: INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctr2, onClick: NULL, placeholder: NULL, readOnly: false, required: true, rows: NULL, size: 2, suffix: NULL, type: FormControl::TYPE_INPUT_NUMBER, value: $invoiceLineAmountTemp, wrap: NULL);
                 $output .= $textAmount->getHtml();
                 $output .= "    </td>\n";
                 $output .= "    <td>\n";
@@ -179,6 +272,7 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
                 $ctr2++;
             }
             $output .= "   <tr id=\"rowTotal\">\n";
+            $output .= "    <td></td>\n";
             $output .= "    <td></td>\n";
             $output .= "    <td>\n";
             $textDummy = new FormControl(debug: SessionUtility::getValue(SessionUtility::OBJECT_NAME_DEBUG), accessKey: NULL, autoComplete: NULL, autoFocus: false, checked: NULL, class: array("hidden"), cols: NULL, disabled: false, id: "dummy_" . $id . "_total", maxLength: 2, name: "dummy_" . $id . "_total", onClick: NULL, placeholder: NULL, readOnly: false, required: NULL, rows: NULL, size: 2, suffix: NULL, type: FormControl::TYPE_INPUT_TEXTBOX, value: NULL, wrap: NULL);
@@ -218,17 +312,13 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
 } elseif (Constant::MODE_SAVE_CREATE == $mode || Constant::MODE_SAVE_MODIFY == $mode || Constant::MODE_SAVE_PAYMENT == $mode || Constant::MODE_VIEW_PDF == $mode) {
     $ary = explode(Constant::DELIMITER_DEFAULT, $ids);
     if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && Constant::MODE_SAVE_PAYMENT == $mode) {
-//         print_r($_POST);
         foreach ($ary as $id) {
-//             $invoiceId = (int) ((isset($_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id])) ? $_POST[HIDDEN_ROW_FIELD_NAME . "_" . $id] : 0);
             $invoicePaymentAmount = (isset($_POST[HIDDEN_PAYMENT_AMOUNT_FIELD_NAME])) ? $_POST[HIDDEN_PAYMENT_AMOUNT_FIELD_NAME] : 0;
             $invoicePaymentComment = (isset($_POST[HIDDEN_PAYMENT_COMMENT_FIELD_NAME])) ? $_POST[HIDDEN_PAYMENT_COMMENT_FIELD_NAME] : NULL;
             if ("" == $invoicePaymentComment) {
                 $invoicePaymentComment = NULL;
             }
             $invoiceDueDate = isset($_POST[HIDDEN_PAYMENT_DUE_DATE_FIELD_NAME]) ? $_POST[HIDDEN_PAYMENT_DUE_DATE_FIELD_NAME] : DEFAULT_VALUE_BLANK;
-//             echo $id . "/" . $invoicePaymentAmount . "/" . $invoicePaymentComment . "/" . $invoiceDueDate;
-//             die();
             $ip = new InvoicePayments();
             $ip->setInvoicePaymentAmount((float) $invoicePaymentAmount);
             $ip->setInvoicePaymentComment($invoicePaymentComment);
@@ -272,7 +362,7 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
             // item, description: use <br> or \n for line break, quantity: #, vat: string percent or actual # amount, price: #, discount: string percent or actual # amount, total: #
             // only name required pass false to disable any other options
             foreach ($invoices[0]->getInvoiceLines() as $invoiceLine) {
-                $invoicePrinter->addItem(item: $invoiceLine->getStudents()->getStudentName(), description: $invoiceLine->getEventTypes()->getEventTypeName(), quantity: false, vat: false, price: false, discount: false, total: $invoiceLine->getInvoiceLineAmount());
+                $invoicePrinter->addItem(item: $invoiceLine->getStudents()->getStudentName(), description: $invoiceLine->getEventTypes()->getEventTypeName() . " on " . DateTimeUtility::formatDisplayDate(value: $invoiceLine->getInvoiceLineEventDate()), quantity: false, vat: false, price: false, discount: false, total: $invoiceLine->getInvoiceLineAmount());
             }
             // description font size default is 7
             //$invoicePrinter->setFontSizeProductDescription(9);
@@ -285,6 +375,8 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
             // badge, color: hex code
             if ($invoices[0]->getInvoiceBalance() <= 0) {
                 $invoicePrinter->addBadge(badge: "Paid in Full");
+            } elseif (count($invoices[0]->getInvoicePayments()) > 0) {
+                $invoicePrinter->addBadge(badge: "Paid $" . $invoices[0]->getInvoicePaymentTotal());
             }
             // add title/paragraph at bottom such as payment details or shipping info
             $invoicePrinter->addTitle(title: "Important Notice");
@@ -336,6 +428,9 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
                     $invoiceMember = $entityManager->find(Constant::ENTITY_MEMBERS, $invoiceMemberId);
                     $in->setMembers($invoiceMember);
                     $entityManager->persist($in);
+                    foreach ($in->getInvoiceLines() as $invoiceLine) {
+                        $entityManager->remove($invoiceLine);
+                    }
                     try {
                         $entityManager->flush();
                     } catch (Exception $e) {
@@ -349,24 +444,31 @@ if (SessionUtility::getValue(SessionUtility::OBJECT_NAME_ADMINISTRATOR) != 0 && 
                         $invoiceLineId = $_POST[INVOICE_LINE_ID_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
                         $invoiceLineStudentId = $_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
                         $invoiceLineStudent = $entityManager->find(Constant::ENTITY_STUDENTS, $invoiceLineStudentId);
-                        $invoiceLineEventTypeId = explode("::", $_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctrTemp])[0];
+                        $invoiceLineEventTypeTempValue = $_POST[INVOICE_LINE_EVENT_TYPE_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
+                        $invoiceLineEventTypeTemp = explode(Constant::DELIMITER_VALUE, $invoiceLineEventTypeTempValue);
+                        $invoiceLineEventTypeId = $invoiceLineEventTypeTemp[0];
+                        $invoiceLineEventTypeTimeLength = (int) $invoiceLineEventTypeTemp[1];
+                        $invoiceLineEventTypeStudentCount = (int) $invoiceLineEventTypeTemp[2];
                         $invoiceLineEventType = $entityManager->find(Constant::ENTITY_EVENT_TYPES, $invoiceLineEventTypeId);
                         $invoiceLineAmount = $_POST[INVOICE_LINE_AMOUNT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
+                        $invoiceLineEventDate = $_POST[INVOICE_LINE_EVENT_DATE_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
                         $invoiceLineComment = NULL;
-                        if (isset($_POST[INVOICE_LINE_STUDENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp])) {
+                        if (isset($_POST[INVOICE_LINE_COMMENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp])) {
                             $invoiceLineComment = $_POST[INVOICE_LINE_COMMENT_FIELD_NAME . "_" . $id . "_" . $ctrTemp];
                             if ("" == $invoiceLineComment) {
                                 $invoiceLineComment = NULL;
                             }
                         }
-        //                 $in = $entityManager->find(Constant::ENTITY_INVOICES, $invoiceId);
                         $il = $entityManager->find(Constant::ENTITY_INVOICE_LINES, $invoiceLineId);
                         if (!isset($il)) {
                             $il = new InvoiceLines();
                         }
                         $il->setEventTypes($invoiceLineEventType);
+                        $il->setEventTypeStudentCount($invoiceLineEventTypeStudentCount);
+                        $il->setEventTypeTimeLength($invoiceLineEventTypeTimeLength);
                         $il->setInvoiceLineAmount((int) $invoiceLineAmount);
                         $il->setInvoiceLineComment($invoiceLineComment);
+                        $il->setInvoiceLineEventDate(new DateTime(datetime: $invoiceLineEventDate));
                         $il->setStudents($invoiceLineStudent);
                         $il->setInvoices($in);
                         $entityManager->persist($il);
@@ -521,6 +623,10 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
             $outputAdditional .= "     <tr>\n";
             $outputAdditional .= "      <th>Line Id</th>\n";
             $outputAdditional .= "      <th>Student</th>\n";
+            $outputAdditional .= "      <th>Event Type</th>\n";
+            $outputAdditional .= "      <th>Time Length</th>\n";
+            $outputAdditional .= "      <th>Student Count</th>\n";
+            $outputAdditional .= "      <th>Event Date</th>\n";
             $outputAdditional .= "      <th>Amount</th>\n";
             $outputAdditional .= "      <th>Comment</th>\n";
             $outputAdditional .= "      <th>Action</th>\n";
@@ -533,6 +639,10 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
                 $outputAdditional .= "     <tr>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryLine->getInvoiceLineId() . "</td>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryLine->getStudents()->getStudentName() . "</td>\n";
+                $outputAdditional .= "      <td>" . $invoiceHistoryLine->getEventTypes()->getEventTypeName() . "</td>\n";
+                $outputAdditional .= "      <td>" . $invoiceHistoryLine->getEventTypeTimeLength() . "</td>\n";
+                $outputAdditional .= "      <td>" . $invoiceHistoryLine->getEventTypeStudentCount() . "</td>\n";
+                $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $invoiceHistoryLine->getInvoiceLineEventDate()) . "</td>\n";
                 $outputAdditional .= "      <td class=\"positive\">$" . $invoiceHistoryLine->getInvoiceLineAmount() . "</td>\n";
                 $outputAdditional .= "      <td><pre>" . $invoiceHistoryLine->getInvoiceLineComment() . "</pre></td>\n";
                 $outputAdditional .= "      <td>" . $invoiceHistoryLine->getAction() . "</td>\n";
@@ -580,7 +690,7 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $outputAdditional .= "<script type=\"module\">\n";
         $outputAdditional .= "  document.querySelector(\"#invoice_lines_link_" . $invoice->getInvoiceId() . "\").addEventListener(\"click\", (evt) => document.querySelector(\"#dialogInvoiceLines_" . $invoice->getInvoiceId() . "\").showModal());\n";
         $outputAdditional .= "</script>\n";
-        $outputAdditional .= "<dialog class=\"child dialog\" id=\"dialogInvoiceLines_" . $invoice->getInvoiceId() . "\">\n";
+        $outputAdditional .= "<dialog class=\"child dialog\" id=\"dialogInvoiceLines_" . $invoice->getInvoiceId() . "\" style=\"left: 3vw; width: unset;\">\n";
         $outputAdditional .= " <form method=\"dialog\">\n";
         $outputAdditional .= "  <header>\n";
         $outputAdditional .= "   <h2>Invoice Lines</h2>\n";
@@ -592,6 +702,10 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $outputAdditional .= "     <tr>\n";
         $outputAdditional .= "      <th>#</th>\n";
         $outputAdditional .= "      <th>Student</th>\n";
+        $outputAdditional .= "      <th>Event Type</th>\n";
+        $outputAdditional .= "      <th>Time Length</th>\n";
+        $outputAdditional .= "      <th>Student Count</th>\n";
+        $outputAdditional .= "      <th>Event Date</th>\n";
         $outputAdditional .= "      <th>Amount</th>\n";
         $outputAdditional .= "      <th>Comment</th>\n";
         $outputAdditional .= "     </tr>\n";
@@ -601,6 +715,10 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
             $outputAdditional .= "     <tr>\n";
             $outputAdditional .= "      <td>" . $invoiceLine->getInvoiceLineId() . "</td>\n";
             $outputAdditional .= "      <td>" . $invoiceLine->getStudents()->getStudentName() . "</td>\n";
+            $outputAdditional .= "      <td>" . $invoiceLine->getEventTypes()->getEventTypeName() . "</td>\n";
+            $outputAdditional .= "      <td>" . $invoiceLine->getEventTypeTimeLength() . "</td>\n";
+            $outputAdditional .= "      <td>" . $invoiceLine->getEventTypeStudentCount() . "</td>\n";
+            $outputAdditional .= "      <td>" . DateTimeUtility::formatDisplayDate(value: $invoiceLine->getInvoiceLineEventDate()) . "</td>\n";
             $outputAdditional .= "      <td class=\"positive\">$" . $invoiceLine->getInvoiceLineAmount() . "</td>\n";
             $outputAdditional .= "      <td><pre>" . $invoiceLine->getInvoiceLineComment() . "</pre></td>\n";
             $outputAdditional .= "     </tr>\n";
@@ -644,7 +762,6 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $outputAdditional .= " </form>\n";
         $outputAdditional .= "</dialog>\n";
 
-//         $outputAdditional .= "<div class=\"wrap\">\n";
         $outputAdditional .= "<dialog class=\"child dialog\" id=\"dialogInvoiceMakePayments_" . $invoice->getInvoiceId() . "\">\n";
         $outputAdditional .= " <form method=\"dialog\">\n";
         $outputAdditional .= "  <header>\n";
@@ -683,7 +800,6 @@ if (Constant::MODE_VIEW == $mode || Constant::MODE_DELETE == $mode || Constant::
         $outputAdditional .= "  </main>\n";
         $outputAdditional .= " </form>\n";
         $outputAdditional .= "</dialog>\n";
-//         $outputAdditional .= "</div>\n";
     }
     if (Constant::MODE_VIEW == $mode) {
         $output .= "<div class=\"buttons center\">\n";

@@ -7,9 +7,19 @@ export const display = {
     document.querySelector("#messages").style.display = "none";
     document.querySelector("#info").style.display = "none";
   },
-  formatActive : function({value, meta, tableId} = {}) {
+  formatActiveCurrent : function({value, meta, tableId} = {}) {
     if (new Date(value) < new Date()) { document.querySelector("#" + tableId + " tbody tr:nth-of-type(" + (meta.row + 1) + ")").classList.add("inactive"); }
     return value;
+  },
+  formatActivePreviousDay : function({value, meta, tableId} = {}) {
+      let yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setMinutes(0);
+      yesterday.setHours(0);
+      yesterday.setSeconds(0);
+      yesterday.setMilliseconds(0);
+      if (new Date(value) < yesterday) { document.querySelector("#" + tableId + " tbody tr:nth-of-type(" + (meta.row + 1) + ")").classList.add("inactive"); }
+      return value;
   },
   formatHighlight : function({value, meta, tableId} = {}) {
     if (value == "1") { document.querySelector("#" + tableId + " tbody tr:nth-of-type(" + (meta.row + 1) + ") td:nth-of-type(" + (meta.col + 1) + ")").classList.add("highlight"); }

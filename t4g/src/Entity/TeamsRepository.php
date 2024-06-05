@@ -6,10 +6,10 @@ use Doctrine\ORM\Query\Parameter;
 
 class TeamsRepository extends BaseRepository {
     public function getById(?int $teamId) {
-        $qb = $this->createQueryBuilder("t");
+        $qb = $this->createQueryBuilder(alias: "t");
         if (isset($teamId)) {
-            $qb = $qb->where("t.teamId = :teamId");
-            $qb->setParameters(new ArrayCollection(array(new Parameter("teamId", $teamId))));
+            $qb = $qb->where(predicates: "t.teamId = :teamId");
+            $qb->setParameters(parameters: new ArrayCollection(elements: array(new Parameter(name: "teamId", value: $teamId))));
         }
         return $qb->getQuery()->getResult();
     }

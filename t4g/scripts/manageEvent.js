@@ -22,7 +22,7 @@ export const inputLocal = {
             },
             dataSrc: 5
           };
-    dataTable.initialize({tableId: "dataTbl", aryColumns: [{ "width": "9%" }, { "width": "13%" }, { "render" : function (data, type, row, meta) { return display.formatActive({value: data, meta: meta, tableId: "dataTbl"}); }, "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }], aryOrder: [[2, "desc"], [3, "desc"], [4, "asc"]], aryRowGroup: false, autoWidth: false, paging: false, scrollCollapse: true, scrollResize: true, scrollY: "400px", searching: true });
+    dataTable.initialize({tableId: "dataTbl", aryColumns: [{ "width": "9%" }, { "width": "13%" }, { "render" : function (data, type, row, meta) { return display.formatActiveCurrent({value: data, meta: meta, tableId: "dataTbl"}); }, "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }, { "width": "13%" }], aryOrder: [[2, "desc"], [3, "desc"], [4, "asc"]], aryRowGroup: false, autoWidth: false, paging: false, scrollCollapse: true, scrollResize: true, scrollY: "400px", searching: true });
   },
   setId : function({selectedRow} = {}) {
     return selectedRow.children[0].innerHTML;

@@ -26,26 +26,26 @@ body {
     font-weight: bold;
     color: #636e73;
     padding: 2px 0;
- display: inline-block;
-  width: 33%;
+    display: inline-block;
+    width: 33%;
 }
 .calendar .header .month-year {
     font-size: 20px;
     font-weight: bold;
     color: #636e73;
     padding: 2px 0;
-  display: inline-block;
-  text-align: center;
-  width: 33%;
+    display: inline-block;
+    text-align: center;
+    width: 33%;
 }
 .calendar .header .month-year-next {
-     font-size: 20px;
+    font-size: 20px;
     font-weight: bold;
     color: #636e73;
     padding: 2px 0;
-  display: inline-block;
-  text-align: right;
-  width: 33%;
+    display: inline-block;
+    text-align: right;
+    width: 33%;
 }
 .calendar .days {
     display: flex;
@@ -111,11 +111,18 @@ body {
     background-color: turquoise;
 }
 .calendar .days .day_num .event.level, .my-legend ul.legend-labels li span.level,
-.calendar .days .day_num .event.level2, .my-legend ul.legend-labels li span.level2 {
+.calendar .days .day_num .event.level2, .my-legend ul.legend-labels li span.level2,
+.calendar .days .day_num .event.level3, .my-legend ul.legend-labels li span.level3 {
     background-color: gray;
 }
-.calendar .days .day_num .event.level3, .my-legend ul.legend-labels li span.level3 {
-    background-color: fuschia;
+.calendar .days .day_num .event.private, .my-legend ul.legend-labels li span.private {
+    background-color: rgb(128, 128, 64);
+}
+.calendar .days .day_num .event.rookie, .my-legend ul.legend-labels li span.rookie {
+    background-color: rgb(255, 128, 255);
+}
+.calendar .days .day_num .event.team, .my-legend ul.legend-labels li span.team {
+    background-color: rgb(192, 192, 192);
 }
 .calendar .days .day_num:nth-child(7n+1) {
     border-left: 1px solid #e6e9ea;

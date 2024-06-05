@@ -28,6 +28,7 @@ abstract class Constant {
   public const ACCESSKEY_DUE_DATE = "u";
   public const ACCESSKEY_END_DATE = "e";
   public const ACCESSKEY_EMAIL = "e";
+  public const ACCESSKEY_EVENT = "e";
   public const ACCESSKEY_EVENT_TYPE = "e";
   public const ACCESSKEY_FEE_PAID = "f";
   public const ACCESSKEY_FIRST_NAME = "f";
@@ -75,7 +76,9 @@ abstract class Constant {
   public const ACCESSKEY_START_TIME = "s";
   public const ACCESSKEY_STATE = "t";
   public const ACCESSKEY_STUDENT = "s";
+  public const ACCESSKEY_STUDENT_COUNT = "s";
   public const ACCESSKEY_SUBJECT = "s";
+  public const ACCESSKEY_TIME_LENGTH = "t";
   public const ACCESSKEY_TO = "t";
   public const ACCESSKEY_TOURNAMENT_DATE = "t";
   public const ACCESSKEY_TOURNAMENT_ID = "t";
@@ -85,6 +88,7 @@ abstract class Constant {
   public const ACCESSKEY_VIEW = "v";
   public const ACCESSKEY_ZIP = "z";
   public const DELIMITER_DEFAULT = ", ";
+  public const DELIMITER_VALUE = "::";
   public const ENTITY_EVENTS = self::ENTITY_PREFIX . "\Events";
   public const ENTITY_EVENT_ORGANIZATIONS = self::ENTITY_PREFIX . "\EventOrganizations";
   public const ENTITY_EVENT_TYPES = self::ENTITY_PREFIX . "\EventTypes";
